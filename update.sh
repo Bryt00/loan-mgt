@@ -2,8 +2,8 @@
 # update.sh - Use this for pushing code changes
 set -e
 
-PROJECT_NAME="electronic-toll"
-USER="r4v3n_00"           # Replace with your server username if different
+PROJECT_NAME="loan-mgt"
+USER="ajhope"           # Replace with your server username if different
 PROJECT_DIR="/home/$USER/$PROJECT_NAME"
 
 cd $PROJECT_DIR
