@@ -18,6 +18,7 @@ echo "========================================================="
 # 1. Update system and install dependencies
 echo "=> Updating system and installing dependencies..."
 sudo apt-get update -y
+sudo apt-get install -y build-essential python3-dev python3-venv libjpeg-dev zlib1g-dev nginx redis-server
 
 
 # 2. Setup Project Directory
