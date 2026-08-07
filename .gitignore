@@ -47,3 +47,6 @@ dump.rdb
 
 # Temporary test scripts
 test_paystack.py
+
+# Documentation
+README.md
