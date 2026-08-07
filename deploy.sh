@@ -97,6 +97,32 @@ sudo systemctl daemon-reload
 sudo systemctl enable gunicorn_${PROJECT_NAME}
 sudo systemctl restart gunicorn_${PROJECT_NAME}
 
+# 5b. Setup Celery Systemd Service
+echo "=> Configuring Celery service..."
+sudo bash -c "cat > /etc/systemd/system/celery_${PROJECT_NAME}.service << EOF
+[Unit]
+Description=Celery worker daemon for $PROJECT_NAME
+After=network.target redis-server.service
+
+[Service]
+Type=simple
+User=$USER
+Group=www-data
+WorkingDirectory=$PROJECT_DIR
+Environment=\"PATH=$PROJECT_DIR/venv/bin\"
+ExecStart=$PROJECT_DIR/venv/bin/celery -A config worker --loglevel=INFO
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+sudo systemctl daemon-reload
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+sudo systemctl enable celery_${PROJECT_NAME}
+sudo systemctl restart celery_${PROJECT_NAME}
+
 # 6. Setup Cloudflare SSL Certificates (Strict Mode)
 echo "=> Setting up Cloudflare SSL certificates..."
 sudo mkdir -p /etc/nginx/ssl
