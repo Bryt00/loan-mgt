@@ -86,7 +86,7 @@ After=network.target
 User=$USER
 Group=www-data
 WorkingDirectory=$PROJECT_DIR
-Environment=\"PATH=$PROJECT_DIR/venv/bin\"
+Environment="PATH=$PROJECT_DIR/venv/bin" "DJANGO_SETTINGS_MODULE=config.settings.prod"
 ExecStart=$PROJECT_DIR/venv/bin/gunicorn --access-logfile - --workers $GUNICORN_WORKERS -k uvicorn.workers.UvicornWorker --bind unix:$PROJECT_DIR/$PROJECT_NAME.sock config.asgi:application
 
 [Install]
@@ -109,7 +109,7 @@ Type=simple
 User=$USER
 Group=www-data
 WorkingDirectory=$PROJECT_DIR
-Environment=\"PATH=$PROJECT_DIR/venv/bin\"
+Environment="PATH=$PROJECT_DIR/venv/bin" "DJANGO_SETTINGS_MODULE=config.settings.prod"
 ExecStart=$PROJECT_DIR/venv/bin/celery -A config worker --loglevel=INFO
 Restart=always
 
