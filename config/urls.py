@@ -24,7 +24,6 @@ urlpatterns = [
     path("",include("apps.account.urls")),
     path("loan/",include("apps.loan.urls")),
     path("borrower_app/",include("apps.borrower_app.urls")),
-    path("borrower_app/", include("apps.borrower_app.urls")),
     path("loan_officer_app/",include("apps.loan_officer_app.urls")),
     path("video_session/", include("apps.video_session.urls")),
     path("transactions/", include("apps.transactions.urls")),

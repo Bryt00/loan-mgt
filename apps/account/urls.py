@@ -6,7 +6,7 @@ app_name = "account"
 urlpatterns = [
 
     path("", views.home, name="home"),
-    path("/work", views.work, name="work"),
+    path("work/", views.work, name="work"),
     path("features/", views.features, name="features"),
     path("about/", views.about, name="about"),
     # Registration & Activation
