@@ -1,0 +1,195 @@
+{% extends 'account/base.html' %}
+{% load static %}
+
+{% block title %}SmartLoan - System Features & Requirements{% endblock %}
+
+{% block content %}
+<div class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-white">
+
+    <!-- Left Column: Functional Requirements Content -->
+    <div class="lg:col-span-6 flex flex-col justify-between px-6 sm:px-12 lg:px-16 py-10">
+
+        <!-- Top Bar / Logo -->
+        <div>
+            <a href="{% url 'account:home' %}" class="inline-flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-900">SmartLoan</span>
+            </a>
+        </div>
+
+        <!-- Main Content Box -->
+        <div class="max-w-md w-full mx-auto my-auto py-8">
+            <div class="mb-6 text-center lg:text-left">
+                <span class="inline-block text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full mb-3">System Blueprint</span>
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Functional Requirements</h2>
+                <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                    Comprehensive specifications powering the SmartLoan architecture across user tiers and backend processes.
+                </p>
+            </div>
+
+            <!-- Features Stack -->
+            <div class="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+
+                <!-- Authentication and accounts -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">01</div>
+                        <h3 class="text-sm font-bold text-slate-900">Authentication & Accounts</h3>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-1.5 text-xs text-slate-600 pl-9">
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>User registration</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Secure login/logout</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Email verification</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Password reset</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Change password</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Profile management</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Role assignment</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Account activation</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>KYC verification status</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Two-factor auth (future)</li>
+                    </ul>
+                </div>
+
+                <!-- Borrower functions -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">02</div>
+                        <h3 class="text-sm font-bold text-slate-900">Borrower Functions</h3>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-1.5 text-xs text-slate-600 pl-9">
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Create/manage profile</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Submit loan application</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Upload documents</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>View application status</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Receive notifications</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Verification sessions</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>View loan history</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Download approvals</li>
+                    </ul>
+                </div>
+
+                <!-- Loan officer functions -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">03</div>
+                        <h3 class="text-sm font-bold text-slate-900">Loan Officer Functions</h3>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-1.5 text-xs text-slate-600 pl-9">
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>View assigned apps</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Review borrower info</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Verify documents</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Add verification notes</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Schedule video sessions</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Approve or reject</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Request extra docs</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Monitor queue</li>
+                    </ul>
+                </div>
+
+                <!-- Admin functions -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">04</div>
+                        <h3 class="text-sm font-bold text-slate-900">Admin Functions</h3>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-1.5 text-xs text-slate-600 pl-9">
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Manage users</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Manage loan officers</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Assign applications</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Configure loan products</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Analytics dashboard</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Generate reports</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Monitor audit logs</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Export data</li>
+                    </ul>
+                </div>
+
+                <!-- System functions -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">05</div>
+                        <h3 class="text-sm font-bold text-slate-900">System Functions</h3>
+                    </div>
+                    <ul class="grid grid-cols-2 gap-1.5 text-xs text-slate-600 pl-9">
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Authentication</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Authorization</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Activity logging</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Notification delivery</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Email sending</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>File storage</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Backup & reporting</li>
+                        <li class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>Background jobs</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Action buttons -->
+            <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                <a href="{% url 'account:register' %}" class="flex-1 py-3 px-4 bg-emerald-800 hover:bg-emerald-900 text-white text-center font-semibold rounded-xl shadow-lg shadow-emerald-900/20 transition duration-200 text-sm">
+                    Get Started
+                </a>
+                <a href="{% url 'account:login' %}" class="flex-1 py-3 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-center font-semibold rounded-xl transition duration-200 text-sm">
+                    Sign In
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="text-xs text-slate-400">
+            &copy; 2026 SmartLoan. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Right Column: Emerald Background with Hero Image & Feature Preview -->
+    <div class="hidden lg:col-span-6 lg:flex flex-col justify-between bg-emerald-950 relative overflow-hidden p-12">
+
+        <!-- Top Support Link -->
+        <div class="flex justify-end relative z-10">
+            <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-emerald-200 hover:text-white transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636l3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Support</span>
+            </a>
+        </div>
+
+        <!-- Center Stage: Hero Image & Overlay -->
+        <div class="relative z-10 my-auto flex flex-col items-center">
+            <div class="relative w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-emerald-800/50">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" alt="System features overview" class="w-full h-80 object-cover">
+
+                <!-- Floating Dashboard Widget overlay -->
+                <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">Functional Matrix</span>
+                        <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">Fully Integrated</span>
+                    </div>
+                    <p class="text-xs text-slate-600">
+                        Seamlessly connecting borrowers, loan officers, and administrators with role-based workflows and robust backend services.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Descriptive copy underneath -->
+            <div class="text-center mt-8">
+                <h3 class="text-xl font-bold text-white">Robust Architecture & Control</h3>
+                <p class="mt-2 text-sm text-emerald-200/80 max-w-md">
+                    Every functional component is meticulously structured to guarantee secure, scalable, and audit-ready financial operations.
+                </p>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div class="flex items-center gap-2 mt-6">
+                <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                <span class="w-6 h-2 rounded-full bg-white"></span>
+                <span class="w-2 h-2 rounded-full bg-white/40"></span>
+            </div>
+        </div>
+
+        <!-- Decorative background glow -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-600/20 rounded-full filter blur-3xl pointer-events-none"></div>
+    </div>
+
+</div>
+{% endblock %}

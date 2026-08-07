@@ -1,0 +1,111 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">My Loan Applications</h2>
+            <p class="text-sm text-slate-500">Track and manage all your submitted loan applications in one place.</p>
+        </div>
+        <a href="{% url 'loan:apply_loan' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-800 text-white text-sm font-semibold hover:bg-emerald-900 transition shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Apply for New Loan
+        </a>
+    </div>
+
+    <!-- Loans Table / Cards Section -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        {% if loans %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <th class="py-4 px-6">Loan Ref / ID</th>
+                            <th class="py-4 px-6">Amount Requested</th>
+                            <th class="py-4 px-6">Submission Date</th>
+                            <th class="py-4 px-6">Status</th>
+                            <th class="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        {% for loan in loans %}
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="py-4 px-6 font-medium text-slate-900">
+                                    #{{ loan.id|slugify|slice:":8"|upper }}
+                                </td>
+                                <td class="py-4 px-6 font-semibold text-slate-900">
+                                    GHS {{ loan.amount|floatformat:2|default:"0.00" }}
+                                </td>
+                                <td class="py-4 px-6 text-slate-500">
+                                    {{ loan.submission_date|date:"M d, Y"|default:"N/A" }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    {% if loan.status == 'approved' or loan.status == 'APPROVED' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">Approved</span>
+                                    {% elif loan.status == 'rejected' or loan.status == 'REJECTED' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100">Rejected</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">Pending Review</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <a href="{% url 'borrower_app:borrower_loan_detail' loan.id %}" class="inline-flex items-center text-xs font-semibold text-emerald-800 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition">
+                                        View Details &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            {% if page_obj.has_other_pages %}
+                <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                    <div class="text-xs text-slate-500">
+                        Showing <span class="font-semibold text-slate-700">{{ page_obj.start_index }}</span> to <span class="font-semibold text-slate-700">{{ page_obj.end_index }}</span> of <span class="font-semibold text-slate-700">{{ page_obj.paginator.count }}</span> results
+                    </div>
+                    <div class="inline-flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+                                &larr; Previous
+                            </a>
+                        {% else %}
+                            <span class="px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-100 text-xs font-medium text-slate-400 cursor-not-allowed">
+                                &larr; Previous
+                            </span>
+                        {% endif %}
+
+                        <span class="px-3 py-1.5 text-xs font-semibold text-slate-700">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+                                Next &rarr;
+                            </a>
+                        {% else %}
+                            <span class="px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-100 text-xs font-medium text-slate-400 cursor-not-allowed">
+                                Next &rarr;
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-16 px-6">
+                <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <h3 class="text-base font-semibold text-slate-900 mb-1">No loan applications yet</h3>
+                <p class="text-sm text-slate-500 mb-6 max-w-sm mx-auto">You haven't submitted any loan requests yet. Get started by applying for a new loan facility.</p>
+                <a href="{% url 'loan:apply_loan' %}" class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-800 text-white text-sm font-semibold hover:bg-emerald-900 transition">
+                    Apply for a Loan
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

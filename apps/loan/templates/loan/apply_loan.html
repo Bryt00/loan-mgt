@@ -1,0 +1,157 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Header Banner -->
+    <div class="mb-8">
+        <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900">Apply for a Loan</h2>
+        <p class="text-sm text-slate-500 mt-1">Fill out the form below to submit your loan application for review.</p>
+    </div>
+
+    <!-- Application Form Container -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 lg:p-8">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-4 rounded-xl bg-red-50 text-red-700 text-sm">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Grid Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Amount -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.amount.id_for_label }}">
+                        {{ form.amount.label }}
+                    </label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.amount.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Tenure Months -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.tenure_months.id_for_label }}">
+                        {{ form.tenure_months.label }}
+                    </label>
+                    {{ form.tenure_months }}
+                    {% if form.tenure_months.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.tenure_months.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Purpose -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.purpose.id_for_label }}">
+                    {{ form.purpose.label }}
+                </label>
+                {{ form.purpose }}
+                {% if form.purpose.errors %}
+                    <p class="text-xs text-red-600 mt-1">{{ form.purpose.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <hr class="border-slate-100 my-6">
+
+            <!-- Employment Information Header -->
+            <h3 class="font-bold text-slate-900 text-base">Employment & Financial Details</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Employment Status -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.employment_status.id_for_label }}">
+                        {{ form.employment_status.label }}
+                    </label>
+                    {{ form.employment_status }}
+                    {% if form.employment_status.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.employment_status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Employer Name -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.employer_name.id_for_label }}">
+                        {{ form.employer_name.label }}
+                    </label>
+                    {{ form.employer_name }}
+                    {% if form.employer_name.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.employer_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Monthly Salary -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.monthly_salary.id_for_label }}">
+                        {{ form.monthly_salary.label }}
+                    </label>
+                    {{ form.monthly_salary }}
+                    {% if form.monthly_salary.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.monthly_salary.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Existing Loans -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.existing_loans.id_for_label }}">
+                        {{ form.existing_loans.label }}
+                    </label>
+                    {{ form.existing_loans }}
+                    {% if form.existing_loans.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.existing_loans.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr class="border-slate-100 my-6">
+
+            <!-- Document Upload Header -->
+            <h3 class="font-bold text-slate-900 text-base">Identification & Supporting Documentation</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Passport Picture -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.passport_picture.id_for_label }}">
+                        {{ form.passport_picture.label }}
+                    </label>
+                    {{ form.passport_picture }}
+                    {% if form.passport_picture.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.passport_picture.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Document Type -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.document_type.id_for_label }}">
+                        {{ form.document_type.label }}
+                    </label>
+                    {{ form.document_type }}
+                    {% if form.document_type.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.document_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Document File -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.document.id_for_label }}">
+                        {{ form.document.label }}
+                    </label>
+                    {{ form.document }}
+                    {% if form.document.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.document.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-6 border-t border-slate-100 flex items-center justify-end space-x-4">
+                <a href="{% url 'borrower_app:borrower_dashboard' %}" class="px-6 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</a>
+                <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold shadow-sm transition">Submit Application</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

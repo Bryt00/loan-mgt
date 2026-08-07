@@ -1,0 +1,103 @@
+{% extends 'loan_officer_app/loan_officer_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 sm:p-8 max-w-7xl mx-auto">
+    <!-- Header / Breadcrumb -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <nav class="text-sm text-slate-500 mb-1">
+                <a href="{% url 'loan:loan_officer_dashboard' %}" class="hover:underline">Dashboard</a> /
+                <span>Loan #{{ loan.id }} Documents</span>
+            </nav>
+            <h1 class="text-2xl font-bold text-slate-900">Borrower Supporting Documents</h1>
+            <p class="text-sm text-slate-500">Reviewing files submitted by <strong>{{ borrower.full_name|default:borrower.email }}</strong></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full
+                {% if loan.application_status == 'SUB' %}bg-amber-100 text-amber-800
+                {% elif loan.application_status == 'AP' %}bg-emerald-100 text-emerald-800
+                {% elif loan.application_status == 'REJ' %}bg-rose-100 text-rose-800
+                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                Status: {{ loan.get_application_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Loan Summary Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Loan Amount</p>
+            <p class="text-lg font-bold text-slate-900 mt-1">GH¢{{ loan.amount }}</p>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Purpose</p>
+            <p class="text-sm text-slate-700 mt-1">{{ loan.purpose }}</p>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Monthly Salary</p>
+            <p class="text-sm text-slate-700 mt-1">GH¢{{ loan.monthly_salary }}</p>
+        </div>
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Employment Status</p>
+            <p class="text-sm text-slate-700 mt-1">{{ loan.get_employment_status_display }}</p>
+        </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="font-semibold text-slate-900">Uploaded Files ({{ documents.count }})</h2>
+        </div>
+
+        {% if documents %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
+                        <th class="py-3 px-6 font-medium">Document Type</th>
+                        <th class="py-3 px-6 font-medium">Verification Status</th>
+                        <th class="py-3 px-6 font-medium">Verification Notes</th>
+                        <th class="py-3 px-6 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
+                    {% for doc in documents %}
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-4 px-6 font-medium text-slate-900">
+                            {{ doc.get_document_type_display }}
+                        </td>
+                        <td class="py-4 px-6">
+                            {% if doc.verification_status %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                Verified
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                Pending Verification
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            {{ doc.verification_notes|default:"No notes added yet." }}
+                        </td>
+                        <td class="py-4 px-6 text-right space-x-2">
+                            <a href="{{ doc.document.url }}" target="_blank"
+                               class="inline-flex items-center px-3 py-1.5 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
+                                View File
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <p class="text-slate-500 text-sm">No supporting documents have been uploaded for this loan application yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

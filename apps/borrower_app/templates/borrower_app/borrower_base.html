@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title|default:"Dashboard" }} - SmartLoan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#064e3b',
+                            dark: '#022c22',
+                            light: '#047857',
+                            surface: '#f0fdf4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans">
+
+    <!-- Mobile Drawer Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden"></div>
+
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+            <div>
+                <!-- Brand Header -->
+                <div class="h-20 flex items-center px-8 border-b border-slate-50">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-800 flex items-center justify-center text-white font-bold text-lg">S</div>
+                        <span class="text-xl font-bold tracking-tight text-slate-900">SmartLoan</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1.5">
+                    <a href="{% url 'borrower_app:borrower_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'borrower_dashboard' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'borrower_dashboard' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'borrower_app:borrower_loans_list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'borrower_loans_list' or request.resolver_match.url_name == 'borrower_loan_detail' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'borrower_loans_list' or request.resolver_match.url_name == 'borrower_loan_detail' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        <span>My Loans</span>
+                    </a>
+
+                    <a href="{% url 'loan:apply_loan' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'apply_loan' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'apply_loan' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Apply for Loan</span>
+                    </a>
+
+                    <!-- Pay Loan Link -->
+                    {% if active_loan %}
+                    <a href="{% url 'transactions:borrower_pay_loan' active_loan.id %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'borrower_pay_loan' or request.resolver_match.url_name == 'initiate_repayment' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'borrower_pay_loan' or request.resolver_match.url_name == 'initiate_repayment' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span>Pay Loan</span>
+                    </a>
+                    {% endif %}
+
+                    <!-- Transactions List Link -->
+                    <a href="{% url 'transactions:borrower_transactions' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'borrower_transactions' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'borrower_transactions' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        <span>Transactions</span>
+                    </a>
+
+                    <a href="{% url 'borrower_app:borrower_documents_list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'borrower_documents_list' or request.resolver_match.url_name == 'borrower_document_detail' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'borrower_documents_list' or request.resolver_match.url_name == 'borrower_document_detail' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Documents</span>
+                    </a>
+
+                    <a href="{% url 'video_session:video_session_list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'video_session_list' or request.resolver_match.url_name == 'borrower_video_sessions_list' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'video_session_list' or request.resolver_match.url_name == 'borrower_video_sessions_list' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <span>Video Session</span>
+                    </a>
+
+                    <!-- Account Settings Link -->
+                    <a href="{% url 'account:profile_edit' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.namespace == 'account' and request.resolver_match.url_name != 'password_change' and request.resolver_match.url_name != 'password_change_done' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.namespace == 'account' and request.resolver_match.url_name != 'password_change' and request.resolver_match.url_name != 'password_change_done' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Account Settings</span>
+                    </a>
+
+                    <!-- Change Password Link -->
+                    <a href="{% url 'account:password_change' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'password_change' or request.resolver_match.url_name == 'password_change_done' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium{% endif %} text-sm transition">
+                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'password_change' or request.resolver_match.url_name == 'password_change_done' %}text-emerald-700{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                        <span>Change Password</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer / User Profile Snippet -->
+            <div class="p-4 border-t border-slate-50">
+                <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-2xl p-4 text-white relative overflow-hidden mb-4">
+                    <p class="text-xs font-medium text-emerald-300 uppercase tracking-wider mb-1">Need a bigger loan?</p>
+                    <p class="text-xs text-slate-300 mb-3">You qualify for limits up to GHS 50,000.</p>
+                    <a href="{% url 'loan:apply_loan' %}" class="inline-flex items-center text-xs font-semibold bg-white text-emerald-900 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition">Check Offer &rarr;</a>
+                </div>
+
+                <div class="flex items-center justify-between px-2 py-1">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 overflow-hidden">
+                            {% if request.user.profile_image %}
+                                <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.full_name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                {{ request.user.initials|default:"KM" }}
+                            {% endif %}
+                        </div>
+                        <div class="overflow-hidden">
+                            <p class="text-sm font-semibold text-slate-900 truncate">{{ request.user.full_name|default:"Kwame Mensah" }}</p>
+                            <p class="text-xs text-slate-500 truncate">Borrower</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col min-w-0">
+
+            <!-- Top Navbar -->
+            <header class="h-20 bg-white border-b border-slate-100 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-30">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h1 class="text-xl font-bold text-slate-900 hidden sm:block">{{ title|default:"Dashboard" }}</h1>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Notification Bell -->
+                    <button class="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                        {% if notification_count > 0 %}
+                            <span class="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                                {{ notification_count }}
+                            </span>
+                        {% else %}
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-300 rounded-full hidden"></span>
+                        {% endif %}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+
+                    <div class="flex items-center space-x-3 pl-2 border-l border-slate-200">
+                        <div class="w-9 h-9 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center text-sm overflow-hidden">
+                            {% if request.user.profile_image %}
+                                <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.full_name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                {{ request.user.initials|default:"KM" }}
+                            {% endif %}
+                        </div>
+                        <span class="text-sm font-semibold text-slate-800 hidden md:inline">{{ request.user.full_name|default:"Kwame Mensah" }}</span>
+                        <form method="post" action="{% url 'account:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-xs text-rose-600 hover:underline font-medium ml-2">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for message in messages %}
+                            <div class="p-4 rounded-xl text-sm font-medium {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-100{% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-100{% else %}bg-slate-100 text-slate-800{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% block dashboard_content %}
+                <!-- Child templates populate this section -->
+                {% endblock %}
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-slate-100 py-6 px-6 lg:px-10 text-center text-xs text-slate-400">
+                🔒 Your security is our priority. SmartLoan uses bank-grade encryption to protect your data.
+            </footer>
+        </div>
+    </div>
+
+    <!-- Toggle Script for Mobile Sidebar -->
+    <script>
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        toggleBtn?.addEventListener('click', toggleSidebar);
+        overlay?.addEventListener('click', toggleSidebar);
+    </script>
+</body>
+</html>

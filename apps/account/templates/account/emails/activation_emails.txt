@@ -1,0 +1,12 @@
+Hello {{ user.full_name }},
+
+Welcome to SmartLoan.
+
+Please activate your account by clicking the link below:
+
+{{ activation_url }}
+
+If you did not create this account, you can ignore this email.
+
+Thank you,
+SmartLoan Team

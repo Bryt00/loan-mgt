@@ -1,0 +1,118 @@
+{% extends base_template %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 sm:p-8 max-w-7xl mx-auto">
+    <!-- Page Header & Action Button -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Video Consultation Sessions</h1>
+            <p class="text-sm text-slate-500 mt-1">
+                {% if request.user.is_officer %}
+                    Manage and schedule your upcoming video meetings with borrowers.
+                {% else %}
+                    View your scheduled video consultations with loan officers.
+                {% endif %}
+            </p>
+        </div>
+        {% if request.user.is_officer %}
+        <div>
+            <a href="{% url 'video_session:video_session_create' %}" class="inline-flex items-center justify-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-medium transition shadow-sm">
+                + Schedule New Session
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sessions Grid / List -->
+    {% if sessions %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for session in sessions %}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between transition hover:shadow-md">
+                    <div>
+                        <!-- Top status/date badge -->
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                {{ session.duration_minutes|default:30 }} Mins
+                            </span>
+                            <span class="text-xs font-medium text-slate-400">
+                                {{ session.schedule_date|date:"M d, Y" }}
+                            </span>
+                        </div>
+
+                        <!-- Topic / Title -->
+                        <h3 class="text-base font-semibold text-slate-900 mb-2">
+                            Loan Consultation {% if session.loan %}- #{{ session.loan.id }}{% endif %}
+                        </h3>
+
+                        <!-- Participants & Detailed Zoom Breakdown -->
+                        <div class="space-y-2 text-xs text-slate-600 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            {% if request.user.is_officer %}
+                                <p><span class="font-medium text-slate-700">Borrower:</span> {{ session.borrower.email|default:"N/A" }}</p>
+                            {% else %}
+                                <p><span class="font-medium text-slate-700">Loan Officer:</span> {{ session.loan_officer.email|default:"N/A" }}</p>
+                            {% endif %}
+
+                            <p><span class="font-medium text-slate-700">Time:</span> {{ session.schedule_time|time:"H:i" }}</p>
+
+                            <div class="pt-1 border-t border-slate-200/60 mt-1">
+                                <p class="flex items-center justify-between">
+                                    <span class="font-medium text-slate-700">Zoom ID:</span>
+                                    <span class="font-mono bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-900 select-all">
+                                        {{ session.zoom_meeting_id|default:"Pending" }}
+                                    </span>
+                                </p>
+                            </div>
+
+                            {% if session.meeting_url %}
+                                <div class="pt-1">
+                                    <span class="font-medium text-slate-700 block mb-0.5">Meeting Link:</span>
+                                    <a href="{{ session.meeting_url }}" target="_blank" class="text-emerald-700 hover:underline break-all block font-mono text-[11px]">
+                                        {{ session.meeting_url }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Actions Footer -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                        {% if session.meeting_url %}
+                            <a href="{{ session.meeting_url }}" target="_blank" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-xl transition shadow-sm">
+                                Join Meeting
+                            </a>
+                        {% else %}
+                            <span class="text-xs text-slate-400 italic">Zoom link pending</span>
+                        {% endif %}
+
+                        {% if request.user.is_officer %}
+                            <div class="flex items-center space-x-1">
+                                <a href="{% url 'video_session:video_session_update' session.pk %}" class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition" title="Edit">
+                                    ✏️
+                                </a>
+                                <a href="{% url 'video_session:video_session_delete' session.pk %}" class="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete">
+                                    🗑️
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-lg mx-auto">
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                📅
+            </div>
+            <h3 class="text-base font-semibold text-slate-900 mb-1">No video sessions found</h3>
+            <p class="text-sm text-slate-500 mb-6">You currently don't have any scheduled video consultation sessions.</p>
+            {% if request.user.is_officer %}
+                <a href="{% url 'video_session:video_session_create' %}" class="inline-flex items-center justify-center px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-medium transition shadow-sm">
+                    Schedule a Session Now
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

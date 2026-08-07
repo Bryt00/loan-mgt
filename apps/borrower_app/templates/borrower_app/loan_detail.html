@@ -1,0 +1,105 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header & Back Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'borrower_app:borrower_dashboard' %}" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round5" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+                <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900">Loan Details #{{ loan.id }}</h2>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Submitted on {{ loan.submission_date|date:"F d, Y" }}</p>
+        </div>
+        <div>
+            <span class="px-3 py-1.5 rounded-full text-xs font-semibold
+                {% if loan.application_status == 'DIS' %} bg-emerald-50 text-emerald-700 border border-emerald-200
+                {% elif loan.application_status == 'APP' %} bg-blue-50 text-blue-700 border border-blue-200
+                {% elif loan.application_status == 'REJ' %} bg-red-50 text-red-700 border border-red-200
+                {% else %} bg-amber-50 text-amber-700 border border-amber-250 {% endif %}">
+                {{ loan.get_application_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Loan Core Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Requested Amount</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-2">GH₵ {{ loan.amount }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tenure</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-2">{{ loan.tenure_months }} Months</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Monthly Salary</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-2">GH₵ {{ loan.monthly_salary }}</p>
+        </div>
+    </div>
+
+    <!-- Detailed Information Card -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 lg:p-8 space-y-6">
+        <h3 class="font-bold text-slate-900 text-base">Application Information</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Employment Status</span>
+                <p class="text-slate-800 font-medium">{{ loan.get_employment_status_display }}</p>
+            </div>
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Employer Name</span>
+                <p class="text-slate-800 font-medium">{{ loan.employer_name|default:"N/A" }}</p>
+            </div>
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Existing Loans</span>
+                <p class="text-slate-800 font-medium">GH₵ {{ loan.existing_loans }}</p>
+            </div>
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Risk Tier / Score</span>
+                <p class="text-slate-800 font-medium">Tier {{ loan.risk_tier|default:"N/A" }} (Score: {{ loan.risk_score|default:"Pending" }})</p>
+            </div>
+        </div>
+
+        <div>
+            <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Loan Purpose</span>
+            <p class="text-slate-700 bg-slate-50 p-4 rounded-xl text-sm leading-relaxed border border-slate-100">{{ loan.purpose }}</p>
+        </div>
+    </div>
+
+    <!-- Passport Picture & Verification Documents Section -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 lg:p-8 space-y-6">
+        <h3 class="font-bold text-slate-900 text-base">Uploaded Files & Identification</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% if loan.passport_picture %}
+                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Passport Picture</span>
+                        <p class="text-sm font-medium text-slate-800 truncate max-w-xs mt-1">{{ loan.passport_picture.name }}</p>
+                    </div>
+                    <a href="{{ loan.passport_picture.url }}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition">View</a>
+                </div>
+            {% endif %}
+
+            {% for doc in documents %}
+                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">{{ doc.get_document_type_display }}</span>
+                        <p class="text-sm font-medium text-slate-800 truncate max-w-xs mt-1">{{ doc.document.name }}</p>
+                    </div>
+                    <a href="{{ doc.document.url }}" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition">View</a>
+                </div>
+            {% empty %}
+                {% if not loan.passport_picture %}
+                    <p class="text-sm text-slate-400 italic col-span-2">No supporting documents uploaded yet.</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

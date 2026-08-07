@@ -1,0 +1,180 @@
+{% extends 'loan_officer_app/loan_officer_base.html' %}
+{% load static %}
+
+{% block title %}Review Pending Loan #{{ loan.id }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 sm:p-8 max-w-7xl mx-auto">
+    <!-- Page Header & Back Button -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-3">
+                <h1 class="text-2xl font-bold text-slate-900">Pending Loan Details #{{ loan.id }}</h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                    {% if loan.application_status == 'SUB' %} bg-blue-50 text-blue-700 border border-blue-200
+                    {% elif loan.application_status == 'VF' %} bg-purple-50 text-purple-700 border border-purple-200
+                    {% elif loan.application_status == 'UNDR' %} bg-amber-50 text-amber-700 border border-amber-200
+                    {% elif loan.application_status == 'SCH' %} bg-indigo-50 text-indigo-700 border border-indigo-200
+                    {% else %} bg-slate-100 text-slate-800 {% endif %}">
+                    {{ loan.get_application_status_display }}
+                </span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Reviewing pending application details for {{ loan.borrower.full_name }}.</p>
+        </div>
+        <div>
+            <a href="{% url 'loan_officer_app:pending_loan_applications' %}" class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
+                &larr; Back to Pending List
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Loan & Borrower Info Cards -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Loan Information Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-3">Loan Specifications</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Requested Amount</span>
+                        <span class="text-lg font-bold text-slate-900 mt-1 block">GH¢{{ loan.amount }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Tenure</span>
+                        <span class="text-base font-semibold text-slate-800 mt-1 block">{{ loan.tenure_months }} Months</span>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Purpose of Loan</span>
+                        <p class="text-slate-700 mt-1 bg-slate-50 p-3 rounded-xl border border-slate-100">{{ loan.purpose }}</p>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Submission Date</span>
+                        <span class="text-slate-700 mt-1 block">{{ loan.submission_date|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Decision Date</span>
+                        <span class="text-slate-700 mt-1 block">{% if loan.decision_date %}{{ loan.decision_date|date:"M d, Y H:i" }}{% else %}N/A{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment & Financial Profile -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-3">Employment & Financial Profile</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Employment Status</span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1
+                            {% if loan.employment_status == 'EMP' %} bg-emerald-50 text-emerald-700 border border-emerald-200
+                            {% else %} bg-amber-50 text-amber-700 border border-amber-200 {% endif %}">
+                            {{ loan.get_employment_status_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Employer Name</span>
+                        <span class="text-slate-800 font-medium mt-1 block">{% if loan.employer_name %}{{ loan.employer_name }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Monthly Salary</span>
+                        <span class="text-slate-900 font-semibold mt-1 block">GH¢{{ loan.monthly_salary }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider">Existing Loans</span>
+                        <span class="text-slate-900 font-semibold mt-1 block">GH¢{{ loan.existing_loans }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supporting Documents Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-3">Supporting Documents</h3>
+                {% if documents %}
+                    <div class="divide-y divide-slate-100">
+                        {% for doc in documents %}
+                            <div class="py-3 flex items-center justify-between text-sm">
+                                <div>
+                                    <span class="font-medium text-slate-900">{{ doc.get_document_type_display }}</span>
+                                    <span class="block text-xs {% if doc.verification_status %}text-emerald-600{% else %}text-amber-600{% endif %} mt-0.5">
+                                        {% if doc.verification_status %}Verified{% else %}Pending Verification{% endif %}
+                                    </span>
+                                </div>
+                                <div>
+                                    <a href="{{ doc.document.url }}" target="_blank" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium rounded-lg text-xs border border-slate-200 transition">
+                                        View Document
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-slate-400">No supporting documents uploaded for this loan application.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar Summary / Passport & Risk Card -->
+        <div class="space-y-6">
+            <!-- Borrower Passport Picture -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 text-center">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Passport Picture</h3>
+                <div class="flex justify-center">
+                    {% if loan.passport_picture %}
+                        <img src="{{ loan.passport_picture.url }}" alt="Borrower Passport" class="w-32 h-32 rounded-full object-cover border-4 border-slate-50 shadow-sm">
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs">
+                            No Image
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mt-4">
+                    <span class="block font-semibold text-slate-900 text-sm">{{ loan.borrower.full_name|default:loan.borrower.email }}</span>
+                    <span class="text-xs text-slate-500">{{ loan.borrower.email }}</span>
+                </div>
+            </div>
+
+            <!-- Risk & Decision Assessment Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Risk & Assessment</h3>
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <span class="block text-xs text-slate-400 font-medium">Risk Score</span>
+                        <span class="text-base font-bold text-slate-800">{% if loan.risk_score %}{{ loan.risk_score }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400 font-medium">Risk Tier</span>
+                        <span class="text-base font-bold text-slate-800">{% if loan.risk_tier %}{{ loan.risk_tier }}{% else %}N/A{% endif %}</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400 font-medium mb-1">Decision Notes</span>
+                        <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 leading-relaxed">
+                            {% if loan.decision_notes %}{{ loan.decision_notes }}{% else %}No decision notes provided yet.{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Official Officer Decision Action Form Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">Loan Decision Action</h3>
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="decision_notes" class="block text-xs font-medium text-slate-600 mb-1">Officer Decision Notes (Optional)</label>
+                        <textarea id="decision_notes" name="decision_notes" rows="3" placeholder="Add remarks or justification for this decision..." class="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700 transition"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <button type="submit" name="action" value="approve" class="w-full py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Approve & Proceed to Disburse
+                        </button>
+                        <button type="submit" name="action" value="reject" onclick="showCustomConfirm(event, 'Are you sure you want to reject this loan application?');" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-2 border border-rose-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            Reject Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

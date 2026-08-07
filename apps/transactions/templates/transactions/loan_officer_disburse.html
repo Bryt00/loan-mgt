@@ -1,0 +1,180 @@
+{% extends base_template %}
+
+{% block title %}{{ title }} - SmartLoan{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">{{ title }}</h1>
+            <p class="text-sm text-slate-500 mt-1">Send approved loan funds directly to the borrower via Paystack.</p>
+        </div>
+        <a href="{% url 'transactions:loan_officer_disburse_select' %}" class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-200 transition">
+            ← Back
+        </a>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="flex items-start gap-3 p-4 rounded-xl border
+            {% if message.tags == 'error' %}bg-rose-50 border-rose-200 text-rose-800
+            {% elif message.tags == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800
+            {% else %}bg-amber-50 border-amber-200 text-amber-800{% endif %}">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {% if message.tags == 'error' %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                {% else %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                {% endif %}
+            </svg>
+            <p class="text-sm font-medium">{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Loan Summary Card -->
+    <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Loan Summary</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div>
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">Borrower</span>
+                <span class="font-semibold text-slate-800">{{ loan.borrower.get_full_name|default:loan.borrower.email }}</span>
+            </div>
+            <div>
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">Email</span>
+                <span class="font-medium text-slate-700 break-all">{{ loan.borrower.email }}</span>
+            </div>
+            <div>
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">Amount</span>
+                <span class="text-xl font-extrabold text-emerald-800">GH¢ {{ loan.amount|floatformat:2 }}</span>
+            </div>
+            <div>
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wider block mb-1">Status</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                    {{ loan.get_application_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disbursement Form Card -->
+    <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-4 mb-6">
+            Recipient Payment Details
+        </h2>
+
+        <form method="POST" class="space-y-5" id="disburse-form">
+            {% csrf_token %}
+
+            <!-- Transfer Method -->
+            <div>
+                <label for="{{ form.transfer_type.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Transfer Method <span class="text-rose-500">*</span>
+                </label>
+                {{ form.transfer_type }}
+                {% if form.transfer_type.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.transfer_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Account Holder Name -->
+            <div>
+                <label for="{{ form.account_name.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    {{ form.account_name.label }} <span class="text-rose-500">*</span>
+                </label>
+                {{ form.account_name }}
+                <p class="text-xs text-slate-400 mt-1.5">{{ form.account_name.help_text }}</p>
+                {% if form.account_name.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.account_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Account / Phone Number -->
+            <div>
+                <label for="{{ form.account_number.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    {{ form.account_number.label }} <span class="text-rose-500">*</span>
+                </label>
+                {{ form.account_number }}
+                <p class="text-xs text-slate-400 mt-1.5" id="account-number-hint">{{ form.account_number.help_text }}</p>
+                {% if form.account_number.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.account_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Bank / Provider -->
+            <div>
+                <label for="{{ form.bank_code.id_for_label }}" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    <span id="bank-code-label">{{ form.bank_code.label }}</span> <span class="text-rose-500">*</span>
+                </label>
+                {{ form.bank_code }}
+                <p class="text-xs text-slate-400 mt-1.5">{{ form.bank_code.help_text }}</p>
+                {% if form.bank_code.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.bank_code.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Disbursement Notice -->
+            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                <p class="font-bold flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    Important — Please Verify Before Confirming
+                </p>
+                <p>This will initiate a real Paystack transfer of <strong>GH¢ {{ loan.amount|floatformat:2 }}</strong> to the account above. Double-check the phone number and name before proceeding. Transfers cannot be reversed instantly.</p>
+            </div>
+
+            <button type="submit"
+                onclick="showCustomConfirm(event, 'Are you sure you want to disburse GH¢ {{ loan.amount|floatformat:2 }} to this account? This action cannot be undone.');"
+                class="w-full py-3.5 bg-emerald-800 text-white font-semibold rounded-xl hover:bg-emerald-900 shadow-sm transition flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Confirm &amp; Disburse GH¢ {{ loan.amount|floatformat:2 }}
+            </button>
+        </form>
+    </div>
+
+    <!-- How it works info box -->
+    <div class="bg-slate-50 rounded-2xl border border-slate-100 p-5 text-xs text-slate-500 space-y-2">
+        <p class="font-semibold text-slate-700 text-sm">How the disbursement works</p>
+        <ul class="space-y-1.5 list-disc list-inside">
+            <li>We register the recipient with Paystack using the account details you provide.</li>
+            <li>Paystack immediately initiates a bank or mobile money transfer from your SmartLoan Paystack balance.</li>
+            <li>The borrower receives funds within minutes (MoMo) or 1–2 business days (bank).</li>
+            <li>The loan status is automatically updated to <strong>Disbursed</strong> upon success.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Dynamically update label and hint text based on transfer method selection
+    const transferTypeSelect = document.getElementById('id_transfer_type');
+    const bankCodeLabel = document.getElementById('bank-code-label');
+    const accountHint = document.getElementById('account-number-hint');
+    const accountInput = document.getElementById('{{ form.account_number.id_for_label }}');
+
+    function updateFormLabels() {
+        const isMoMo = transferTypeSelect.value === 'mobile_money';
+        if (bankCodeLabel) {
+            bankCodeLabel.textContent = isMoMo ? 'Mobile Money Provider' : 'Bank';
+        }
+        if (accountHint) {
+            accountHint.textContent = isMoMo
+                ? 'Enter the borrower\'s mobile number (e.g. 0241234567)'
+                : 'Enter the borrower\'s bank account number (10–13 digits)';
+        }
+        if (accountInput) {
+            accountInput.placeholder = isMoMo ? 'e.g. 0241234567' : 'e.g. 1234567890';
+        }
+    }
+
+    if (transferTypeSelect) {
+        transferTypeSelect.addEventListener('change', updateFormLabels);
+        updateFormLabels(); // Run on page load
+    }
+</script>
+{% endblock %}

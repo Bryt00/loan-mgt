@@ -1,0 +1,95 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+    <!-- Page Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold tracking-tight text-slate-900">Supporting Documents</h2>
+            <p class="text-sm text-slate-500 mt-1">Manage and view verification documents uploaded for your loan applications.</p>
+        </div>
+        <div>
+            <a href="{% url 'loan:apply_loan' %}" class="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-800 text-white font-medium text-sm hover:bg-emerald-900 transition shadow-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Upload New Document
+            </a>
+        </div>
+    </div>
+
+    <!-- Documents Table / Cards Component -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        {% if documents %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/75 border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <th class="py-4 px-6">Document Type</th>
+                            <th class="py-4 px-6">Loan Reference</th>
+                            <th class="py-4 px-6">Uploaded Date</th>
+                            <th class="py-4 px-6">Verification Status</th>
+                            <th class="py-4 px-6 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        {% for doc in documents %}
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 font-bold">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900">{{ doc.get_document_type_display }}</p>
+                                            <p class="text-xs text-slate-400 truncate max-w-xs">{{ doc.document.name|cut:"loan/documents/" }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="font-medium text-slate-700">Loan #{{ doc.loan_application.id }}</span>
+                                    <p class="text-xs text-slate-400">GHS {{ doc.loan_application.amount }}</p>
+                                </td>
+                                <td class="py-4 px-6 text-slate-600">
+                                    {{ doc.created_at|date:"M d, Y" }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    {% if doc.verification_status %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-100">
+                                            <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-600 rounded-full"></span> Verified
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-100">
+                                            <span class="w-1.5 h-1.5 mr-1.5 bg-amber-500 rounded-full"></span> Pending Review
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <a href="{{ doc.document.url }}" target="_blank" class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition" title="Download File">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                        </a>
+                                        <a href="{% url 'borrower_app:borrower_document_detail' doc.id %}" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-emerald-800 hover:text-white font-medium text-xs transition">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16 px-6">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-1">No documents uploaded yet</h3>
+                <p class="text-sm text-slate-500 max-w-sm mx-auto mb-6">When you submit supporting files during your loan applications, they will securely appear here.</p>
+                <a href="{% url 'loan:apply_loan' %}" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-emerald-800 text-white font-medium text-sm hover:bg-emerald-900 transition shadow-sm">
+                    Apply for a Loan
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

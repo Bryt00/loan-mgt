@@ -1,0 +1,45 @@
+{% extends borrower_app/borrower_base.html %}
+
+{% block title %}{{ title }} - SmartLoan{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-xl mx-auto space-y-6">
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-5">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">{{ title }}</h2>
+            <p class="text-sm text-slate-500 mt-1">Make secure loan repayments directly via Paystack.</p>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-2 text-sm">
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">Loan ID:</span>
+                <span class="font-mono text-xs font-bold text-slate-800">{{ loan.id }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">Approved Amount:</span>
+                <span class="font-bold text-slate-900">GH¢ {{ loan.amount|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">Status:</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                    {{ loan.get_application_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Payment Amount (GH¢)</label>
+                {{ form.amount }}
+                {% if form.amount.errors %}
+                    <p class="text-xs text-rose-600 font-medium mt-1">{{ form.amount.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-emerald-800 text-white font-semibold rounded-xl hover:bg-emerald-900 shadow-sm transition">
+                Proceed to Paystack Checkout
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

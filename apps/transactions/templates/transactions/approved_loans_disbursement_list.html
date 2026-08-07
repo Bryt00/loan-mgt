@@ -1,0 +1,127 @@
+{% extends base_template %}
+
+{% block title %}{{ title }} - SmartLoan{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6">
+    <!-- Header & Search -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">{{ title }}</h1>
+            <p class="text-sm text-slate-500 mt-1">Select an approved loan application to disburse funds to the borrower via Paystack Transfer.</p>
+        </div>
+
+        <!-- Search Form -->
+        <form method="GET" class="flex items-center gap-2">
+            <div class="relative">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="Search borrower or loan ID..."
+                    class="pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-sm text-slate-900 bg-white focus:outline-none focus:border-emerald-700 transition w-64"
+                >
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <button type="submit" class="px-4 py-2 bg-emerald-800 text-white text-sm font-medium rounded-xl hover:bg-emerald-900 transition">
+                Search
+            </button>
+            {% if search_query %}
+                <a href="{% url 'transactions:loan_officer_disburse_select' %}" class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-200 transition">
+                    Clear
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Approved Loans Table Card -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        {% if approved_loans %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4">Loan ID & Borrower</th>
+                            <th class="px-6 py-4 text-right">Approved Amount</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                            <th class="px-6 py-4">Submission Date</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for loan in approved_loans %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-900">Loan #{{ loan.id }}</div>
+                                <div class="text-xs font-medium text-slate-800">{{ loan.borrower.full_name|default:loan.borrower.email }}</div>
+                                <div class="text-xs text-slate-400">{{ loan.borrower.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-extrabold text-emerald-800 whitespace-nowrap">
+                                GH¢ {{ loan.amount|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                    {{ loan.get_application_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-500 whitespace-nowrap">
+                                {{ loan.submission_date|date:"M d, Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'transactions:loan_officer_disburse' loan.id %}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-800 text-white font-semibold text-xs rounded-xl hover:bg-emerald-900 shadow-sm transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Disburse Now
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+                <p class="text-xs text-slate-500">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </p>
+                <div class="flex gap-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">
+                            Next
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900">No approved loans awaiting disbursement</h3>
+                <p class="text-sm text-slate-500 mt-1 max-w-sm">
+                    {% if search_query %}
+                        No approved loan matches your search "{{ search_query }}".
+                    {% else %}
+                        All approved loan applications have already been disbursed or none are currently approved.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

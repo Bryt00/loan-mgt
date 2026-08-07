@@ -1,0 +1,195 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block dashboard_content %}
+<!-- Welcome Banner Header -->
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <h2 class="text-2xl lg:text-3xl font-extrabold text-slate-900">Welcome, {{ request.user.first_name|default:"Kwame" }} 👋</h2>
+        <p class="text-sm text-slate-500 mt-1">Here's what's happening with your loan accounts today.</p>
+    </div>
+    <!-- User Profile Picture Header Snippet -->
+    <div class="hidden sm:flex items-center space-x-3 bg-white p-2 px-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 overflow-hidden border-2 border-emerald-600">
+            {% if request.user.profile and request.user.profile.profile_photo %}
+                <img src="{{ request.user.profile_photo.url }}" alt="{{ request.user.full_name }}" class="w-full h-full object-cover">
+            {% else %}
+                {{ request.user.initials|default:"KM" }}
+            {% endif %}
+        </div>
+        <div class="text-left">
+            <p class="text-xs font-semibold text-slate-900">{{ request.user.full_name|default:"Kwame Mensah" }}</p>
+            <a href="{% url 'account:profile_edit' %}" class="text-[11px] text-emerald-700 hover:underline font-medium">Edit Profile</a>
+        </div>
+    </div>
+</div>
+
+<!-- Metric Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <!-- Card 1: Total Loan Balance -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Disbursed Balance</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">GHS {{ total_borrowed|floatformat:2 }}</p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <span>Total active records</span>
+            <span class="text-emerald-600 font-medium">{{ active_loans_count }} Active</span>
+        </div>
+    </div>
+    <!-- Card 2: Next Payment Due -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Next Payment Due</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">GHS {{ next_payment_amount|floatformat:2 }}</p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <span>Due Date</span>
+            <span class="font-semibold text-slate-700">{{ next_payment_date|date:"d M Y"|default:"No active schedule" }}</span>
+        </div>
+    </div>
+    <!-- Card 3: Credit Health Score -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Credit Health Score</p>
+            <p class="text-2xl font-bold text-emerald-700 mt-2">{{ credit_score }} <span class="text-xs font-normal text-emerald-600">/ Good</span></p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <span>Risk Tier</span>
+            <span class="font-semibold text-slate-700">{{ risk_tier }}</span>
+        </div>
+    </div>
+    <!-- Card 4: Available Credit Limit -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div>
+            <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Available Credit Limit</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">GHS {{ available_credit_limit|floatformat:2 }}</p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-xs text-slate-500">
+            <span>Max limit</span>
+            <span class="font-semibold text-slate-700">GHS {{ max_limit|floatformat:2 }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Grid Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Left Column: Active Loans & Quick Actions -->
+    <div class="lg:col-span-2 space-y-8">
+
+        <!-- Active Loans Table Container -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-50 flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 text-base">My Active Loans</h3>
+                <a href="{% url 'loan:apply_loan' %}" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition">Apply for New Loan &rarr;</a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+                            <th class="py-3 px-6">Loan ID</th>
+                            <th class="py-3 px-6">Purpose</th>
+                            <th class="py-3 px-6">Amount</th>
+                            <th class="py-3 px-6">Status</th>
+                            <th class="py-3 px-6 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 text-sm">
+                        {% if loans %}
+                            {% for loan in loans %}
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="py-4 px-6 font-semibold text-slate-900">#{{ loan.id|slugify|slice:":6"|upper }}</td>
+                                <td class="py-4 px-6 text-slate-600 truncate max-w-xs">{{ loan.purpose }}</td>
+                                <td class="py-4 px-6 font-medium text-slate-900">GHS {{ loan.amount }}</td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {% if loan.application_status == 'AP' or loan.application_status == 'DIS' %}bg-emerald-50 text-emerald-700{% elif loan.application_status == 'UNDR' or loan.application_status == 'SUB' or loan.application_status == 'VF' %}bg-amber-50 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                                        {{ loan.get_application_status_display }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <a href="{% url 'loan:application_status' loan.id %}" class="text-xs font-semibold text-emerald-700 hover:underline">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-slate-400 text-sm">
+                                    No active loans found. <a href="{% url 'loan:apply_loan' %}" class="text-emerald-700 underline font-semibold">Apply now</a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions Grid -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="{% url 'loan:apply_loan' %}" class="flex items-center space-x-4 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold group-hover:scale-105 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Apply for Loan</p>
+                        <p class="text-xs text-slate-500">Get funds instantly</p>
+                    </div>
+                </a>
+                <div class="flex items-center space-x-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition group cursor-pointer">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Make a Repayment</p>
+                        <p class="text-xs text-slate-500">Pay securely online</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right Column: Recent Activity & Support Cards -->
+    <div class="space-y-8">
+
+        <!-- Activity Timeline -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Recent Activity</h3>
+            <div class="space-y-4">
+                <div class="flex items-start space-x-3 pb-3 border-b border-slate-50">
+                    <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold mt-0.5">✓</div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-900">Loan Application Submitted</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Today, 10:45 AM</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3 pb-3 border-b border-slate-50">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xs font-bold mt-0.5">💰</div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-900">Disbursement Processed</p>
+                        <p class="text-xs text-slate-400 mt-0.5">20 May 2026</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold mt-0.5">✓</div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-900">Identity Verified</p>
+                        <p class="text-xs text-slate-400 mt-0.5">18 May 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Support Card -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-6 text-white">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-emerald-400 mb-1">Need Assistance?</h4>
+            <p class="text-xs text-slate-300 mb-4">Our loan support officers are available Monday through Friday to guide you.</p>
+            <a href="mailto:support@smartloan.com" class="inline-block text-xs font-semibold bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl transition">Contact Support</a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

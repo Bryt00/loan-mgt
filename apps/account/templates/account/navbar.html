@@ -1,0 +1,75 @@
+<!-- templates/account/navbar.html -->
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <!-- Brand Logo -->
+            <div class="flex-shrink-0 flex items-center gap-2">
+                <a href="{% url 'account:home' %}" class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-600/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight text-slate-900 block leading-none">Smart<span class="text-emerald-600">Loan</span></span>
+                        <span class="text-[10px] text-slate-500 font-medium tracking-wide block mt-1">Smart Loans. Simple Process.</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Desktop Navigation Links -->
+            <div class="hidden lg:flex items-center space-x-8">
+                <a href="{% url 'account:home' %}" class="text-sm font-semibold text-emerald-600 relative py-2 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-emerald-600">Home</a>
+                <a href="{% url 'account:work' %}" class="text-sm font-medium text-slate-600 hover:text-emerald-600 transition py-2">How It Works</a>
+                <a href="{% url 'account:features' %}" class="text-sm font-medium text-slate-600 hover:text-emerald-600 transition py-2">Features</a>
+                <a href="{% url 'account:about' %}" class="text-sm font-medium text-slate-600 hover:text-emerald-600 transition py-2">About Us</a>
+                <a href="#" class="text-sm font-medium text-slate-600 hover:text-emerald-600 transition py-2">Contact</a>
+            </div>
+
+            <!-- Right Actions: Phone + Buttons -->
+            <div class="hidden md:flex items-center space-x-6">
+                <!-- Phone Info -->
+                <div class="hidden xl:flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[11px] text-slate-400 block font-medium leading-none">Need Help?</span>
+                        <span class="text-xs font-bold text-slate-800 block mt-0.5">+233 24 123 4567</span>
+                    </div>
+                </div>
+
+                <!-- Login & Get Started Buttons -->
+                <a href="{% url 'account:login' %}" class="text-sm font-semibold text-slate-700 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition">Login</a>
+                <a href="{% url 'account:register' %}" class="text-sm font-semibold text-white bg-emerald-600 px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition">Get Started</a>
+            </div>
+
+            <!-- Mobile Hamburger Toggle -->
+            <div class="flex lg:hidden items-center">
+                <button id="mobile-menu-button" type="button" class="text-slate-600 hover:text-slate-900 focus:outline-none p-2 rounded-lg bg-slate-100">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-slate-100 px-6 pt-4 pb-6 space-y-3 shadow-xl">
+        <a href="{% url 'account:home' %}" class="block px-3 py-2 rounded-lg text-base font-semibold text-emerald-600 bg-emerald-50">Home</a>
+        <a href="{% url 'account:work' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50">How It Works</a>
+        <a href="{% url 'account:features' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50">Features</a>
+        <a href="{% url 'account:about' %}" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50">About Us</a>
+        <a href="#" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50">Contact</a>
+        <div class="pt-4 border-t border-slate-100 flex flex-col gap-3">
+            <a href="{% url 'account:login' %}" class="w-full text-center py-2.5 text-slate-700 font-semibold border border-slate-200 rounded-xl">Login</a>
+            <a href="{% url 'account:register' %}" class="w-full text-center py-2.5 bg-emerald-600 text-white rounded-xl font-semibold shadow-md">Get Started</a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    document.getElementById('mobile-menu-button').addEventListener('click', function () {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+</script>

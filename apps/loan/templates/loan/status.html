@@ -1,0 +1,60 @@
+{% extends 'borrower_app/borrower_base.html' %}
+
+{% block title %}Loan Application Status{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 sm:p-8 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Loan Status</h1>
+            <p class="text-sm text-slate-500 mt-1">Review the details and progress of your loan application.</p>
+        </div>
+        <div>
+            <a href="{% url 'video_session:video_session_list' %}" class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
+                &larr; Back to Sessions
+            </a>
+        </div>
+    </div>
+
+    <!-- Loan Status Details Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Application Reference</span>
+                <h2 class="text-lg font-mono font-bold text-slate-900 mt-0.5">#{{ loan.id }}</h2>
+            </div>
+            <div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                    {% if loan.status == 'approved' %} bg-emerald-50 text-emerald-800 border border-emerald-200
+                    {% elif loan.status == 'rejected' %} bg-rose-50 text-rose-800 border border-rose-200
+                    {% else %} bg-amber-50 text-amber-800 border border-amber-200 {% endif %}">
+                    {{ loan.get_status_display|default:"Pending Review" }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Grid Attributes -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Requested Amount</span>
+                <span class="text-base font-bold text-slate-900">GH¢{{ loan.amount|default:"0.00" }}</span>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <span class="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Application Date</span>
+                <span class="text-base font-semibold text-slate-800">{{ loan.created_at|date:"M d, Y"|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        <!-- Purpose / Description -->
+        {% if loan.purpose %}
+        <div class="pt-2">
+            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Loan Purpose</h3>
+            <p class="text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed">
+                {{ loan.purpose }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

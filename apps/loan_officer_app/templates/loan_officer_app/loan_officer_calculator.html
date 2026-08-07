@@ -1,0 +1,98 @@
+{% extends 'loan_officer_app/loan_officer_base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="space-y-6 max-w-5xl mx-auto">
+    <!-- Page Header -->
+    <div>
+        <div class="flex items-center space-x-2">
+            <a href="{% url 'loan_officer_app:loan_officer_dashboard' %}" class="text-xs font-semibold text-emerald-700 hover:underline">Dashboard</a>
+            <span class="text-slate-300">/</span>
+            <span class="text-xs font-semibold text-slate-500">Loan Calculator</span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 mt-1">Amortization & Repayment Calculator</h1>
+        <p class="text-sm text-slate-500">Model loan scenarios, calculate monthly installments, and project total interest payable.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Input Form Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4 lg:col-span-1">
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Loan Parameters</h2>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Loan Amount (GH¢)</label>
+                <input type="number" id="calc-amount" value="10000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Annual Interest Rate (%)</label>
+                <input type="number" id="calc-rate" value="15" step="0.1" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Tenure (Months)</label>
+                <input type="number" id="calc-tenure" value="12" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700">
+            </div>
+
+            <button type="button" onclick="calculateLoan()" class="w-full py-3 px-4 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-sm font-semibold transition shadow-sm">
+                Calculate Schedule
+            </button>
+        </div>
+
+        <!-- Results Summary Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6 lg:col-span-2 flex flex-col justify-between">
+            <div>
+                <h2 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Repayment Summary</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-xs font-semibold uppercase text-slate-400">Monthly Payment</span>
+                        <p id="res-monthly" class="text-xl font-bold text-slate-900 mt-1">GH¢0.00</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-xs font-semibold uppercase text-slate-400">Total Interest</span>
+                        <p id="res-interest" class="text-xl font-bold text-slate-900 mt-1">GH¢0.00</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <span class="text-xs font-semibold uppercase text-slate-400">Total Payment</span>
+                        <p id="res-total" class="text-xl font-bold text-slate-900 mt-1">GH¢0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-400 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/60 text-emerald-800">
+                <strong>Note:</strong> Calculations are based on standard amortization formulas. Actual terms may vary depending on fee structures and exact disbursement dates.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function calculateLoan() {
+    const principal = parseFloat(document.getElementById('calc-amount').value);
+    const annualRate = parseFloat(document.getElementById('calc-rate').value);
+    const months = parseInt(document.getElementById('calc-tenure').value);
+
+    if (isNaN(principal) || isNaN(annualRate) || isNaN(months) || months <= 0) return;
+
+    const monthlyRate = (annualRate / 100) / 12;
+    let monthlyPayment = 0;
+
+    if (monthlyRate === 0) {
+        monthlyPayment = principal / months;
+    } else {
+        monthlyPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+    }
+
+    const totalPayment = monthlyPayment * months;
+    const totalInterest = totalPayment - principal;
+
+    document.getElementById('res-monthly').innerText = 'GH¢' + monthlyPayment.toFixed(2);
+    document.getElementById('res-interest').innerText = 'GH¢' + totalInterest.toFixed(2);
+    document.getElementById('res-total').innerText = 'GH¢' + totalPayment.toFixed(2);
+}
+
+// Run calculation on load
+window.onload = calculateLoan;
+</script>
+{% endblock %}

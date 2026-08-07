@@ -1,0 +1,178 @@
+{% extends 'account/base.html' %}
+{% load static %}
+
+{% block title %}SmartLoan - Create Account{% endblock %}
+
+{% block content %}
+<div class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-white">
+
+    <!-- Left Column: Registration Form -->
+    <div class="lg:col-span-6 flex flex-col justify-between px-6 sm:px-12 lg:px-16 py-10">
+
+        <!-- Top Bar / Logo -->
+        <div>
+            <a href="#" class="inline-flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-900">SmartLoan</span>
+            </a>
+        </div>
+
+        <!-- Form Header & Inputs -->
+        <div class="max-w-md w-full mx-auto my-auto py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Create Account</h2>
+                <p class="mt-2 text-sm text-slate-600">
+                    Already have an account?
+                    <a href="{% url 'account:login' %}" class="font-semibold text-emerald-600 hover:text-emerald-700 transition">Sign in</a>
+                </p>
+            </div>
+
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-600">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Full Name</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <p class="mt-1 text-xs text-rose-500">{{ form.full_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email Address -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-xs text-rose-500">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Phone Number</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                        <p class="mt-1 text-xs text-rose-500">{{ form.phone_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <p class="mt-1 text-xs text-rose-500">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <p class="mt-1 text-xs text-rose-500">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-3.5 px-4 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold rounded-xl shadow-lg shadow-emerald-900/20 transition duration-200 text-sm">
+                    Sign Up
+                </button>
+            </form>
+
+            <!-- Divider -->
+
+
+            <!-- Social Logins -->
+
+        </div>
+
+        <!-- Footer Note -->
+        <div class="text-xs text-slate-400">
+            &copy; 2026 SmartLoan. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Right Column: Emerald Background with Hero Image & Feature Preview -->
+    <div class="hidden lg:col-span-6 lg:flex flex-col justify-between bg-emerald-950 relative overflow-hidden p-12">
+
+        <!-- Top Support Link -->
+        <div class="flex justify-end relative z-10">
+            <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-emerald-200 hover:text-white transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Support</span>
+            </a>
+        </div>
+
+        <!-- Center Stage: Woman standing in green background pressing phone + Analytics Overlay -->
+        <div class="relative z-10 my-auto flex flex-col items-center">
+            <div class="relative w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-emerald-800/50">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" alt="Happy woman standing in green background pressing phone" class="w-full h-80 object-cover">
+
+                <!-- Floating Dashboard Widget overlay matching design reference -->
+                <div class="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">Sale Analytics</span>
+                        <div class="flex gap-1 text-[10px] text-slate-400 bg-slate-100 p-1 rounded-lg">
+                            <span class="px-2 py-0.5 bg-white shadow-sm rounded text-slate-800 font-semibold">1D</span>
+                            <span class="px-2 py-0.5">1W</span>
+                            <span class="px-2 py-0.5">1M</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pb-3 border-b border-slate-100">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase">Sales</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-lg font-extrabold text-slate-900">14.5k</span>
+                                <span class="text-[10px] font-semibold text-emerald-600">+6.2% Last 24hr</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase">Product</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-lg font-extrabold text-slate-900">13.9k</span>
+                                <span class="text-[10px] font-semibold text-rose-500">-1.4k Last 24hr</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-3 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase">Users</p>
+                            <span class="text-sm font-bold text-slate-900">28.5k</span>
+                        </div>
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+4.5% Previous month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descriptive copy underneath -->
+            <div class="text-center mt-8">
+                <h3 class="text-xl font-bold text-white">Introducing new features</h3>
+                <p class="mt-2 text-sm text-emerald-200/80 max-w-md">
+                    Analyzing previous trends ensures that businesses always make the right decision. And as the scale of the decision and its impact magnifies...
+                </p>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div class="flex items-center gap-2 mt-6">
+                <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                <span class="w-6 h-2 rounded-full bg-white"></span>
+                <span class="w-2 h-2 rounded-full bg-white/40"></span>
+            </div>
+        </div>
+
+        <!-- Decorative background glow -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-600/20 rounded-full filter blur-3xl pointer-events-none"></div>
+    </div>
+
+</div>
+{% endblock %}

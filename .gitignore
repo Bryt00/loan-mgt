@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Node / Frontend
+node_modules/
+package-lock.json
+
+# Django Database
+db.sqlite3
+db.sqlite3-journal
+
+# Logs and Media
+*.log
+media/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor
+.idea/
+.vscode/
+
+# Python Virtual Environments
+.venv/
+
+# Database dumps
+dump.rdb
+
+# Temporary test scripts
+test_paystack.py

@@ -1,0 +1,131 @@
+{% extends 'loan_officer_app/loan_officer_base.html' %}
+{% load static %}
+
+{% block title %}Assigned Borrowers & Loan Profiles{% endblock %}
+
+{% block dashboard_content %}
+<div class="p-6 sm:p-8 max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">Assigned Borrowers</h1>
+            <p class="text-sm text-slate-500 mt-1">Review all borrowers assigned to your desk along with their complete loan histories and files.</p>
+        </div>
+    </div>
+
+    <!-- Borrowers List -->
+    <div class="space-y-6">
+        {% for borrower in page_obj %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Borrower Header Info -->
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                            {{ borrower.full_name|slice:":2"|upper }}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900">{{ borrower.full_name|default:borrower.email }}</h3>
+                            <span class="text-xs text-slate-500">{{ borrower.email }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                            Total Loans: {{ borrower.borrowed_loans.all|length }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Borrower's Loans Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-white">
+                                <th class="py-3 px-6">Loan ID</th>
+                                <th class="py-3 px-6">Amount</th>
+                                <th class="py-3 px-6">Tenure</th>
+                                <th class="py-3 px-6">Status</th>
+                                <th class="py-3 px-6">Submission Date</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+                            {% for loan in borrower.borrowed_loans.all %}
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="py-3 px-6 font-semibold text-slate-900">
+                                        Loan #{{ loan.id }}
+                                    </td>
+                                    <td class="py-3 px-6 font-medium text-slate-900">
+                                        GH¢{{ loan.amount }}
+                                    </td>
+                                    <td class="py-3 px-6 text-slate-600">
+                                        {{ loan.tenure_months }} Months
+                                    </td>
+                                    <td class="py-3 px-6">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                                            {% if loan.application_status == 'AP' %} bg-emerald-100 text-emerald-800
+                                            {% elif loan.application_status == 'DIS' %} bg-blue-100 text-blue-800
+                                            {% elif loan.application_status == 'SUB' %} bg-blue-50 text-blue-700 border border-blue-200
+                                            {% elif loan.application_status == 'VF' %} bg-purple-50 text-purple-700 border border-purple-200
+                                            {% elif loan.application_status == 'UNDR' %} bg-amber-50 text-amber-700 border border-amber-200
+                                            {% elif loan.application_status == 'SCH' %} bg-indigo-50 text-indigo-700 border border-indigo-200
+                                            {% else %} bg-slate-100 text-slate-800 {% endif %}">
+                                            {{ loan.get_application_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-6 text-slate-500 text-xs">
+                                        {{ loan.submission_date|date:"M d, Y H:i" }}
+                                    </td>
+                                    <td class="py-3 px-6 text-right">
+                                        {% if loan.application_status in 'AP,DIS' %}
+                                            <a href="{% url 'loan_officer_app:review_approved_disbursed_loan' loan.id %}" class="inline-flex items-center justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-xs transition">
+                                                Review
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'loan_officer_app:review_pending_loan' loan.id %}" class="inline-flex items-center justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-xs transition">
+                                                Review
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="py-6 text-center text-slate-400 text-xs">
+                                        No loans recorded for this borrower.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% empty %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center text-slate-400">
+                <p class="text-sm font-medium text-slate-600">No borrowers found</p>
+                <p class="text-xs text-slate-400 mt-1">You currently have no borrowers with assigned loan applications.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination Footer -->
+    {% if page_obj.has_other_pages %}
+        <div class="bg-white px-6 py-4 mt-6 rounded-2xl border border-slate-200 flex items-center justify-between">
+            <div class="text-sm text-slate-500">
+                Showing page <span class="font-semibold text-slate-700">{{ page_obj.number }}</span> of <span class="font-semibold text-slate-700">{{ page_obj.paginator.num_pages }}</span>
+            </div>
+            <div class="inline-flex gap-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition">Previous</a>
+                {% else %}
+                    <span class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-300 cursor-not-allowed">Previous</span>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition">Next</a>
+                {% else %}
+                    <span class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-300 cursor-not-allowed">Next</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
