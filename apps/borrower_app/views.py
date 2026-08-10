@@ -167,6 +167,10 @@ def borrower_loan_detail(request, loan_id):
 
 @login_required
 def borrower_documents_list(request):
+    if request.user.role != request.user.Role.BORROWER:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect("account:home")
+
     documents = SupportingDocuments.objects.filter(
         loan_application__borrower=request.user
     ).order_by("-created_at")
@@ -185,6 +189,10 @@ def borrower_documents_list(request):
 
 @login_required
 def borrower_document_detail(request, document_id):
+    if request.user.role != request.user.Role.BORROWER:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect("account:home")
+
     document = get_object_or_404(
         SupportingDocuments,
         id=document_id,

@@ -44,9 +44,15 @@ class Loan(BaseModel):
     submission_date = models.DateTimeField(auto_now_add=True)
     decision_date = models.DateTimeField(null=True, blank=True)
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self.outstanding_balance = None
+    @property
+    def outstanding_balance(self):
+        from decimal import Decimal
+        from django.db.models import Sum
+        repaid = self.payments.filter(
+            payment_type="REPAYMENT",
+            status="SUCCESS"
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        return max(Decimal('0.00'), self.amount - repaid)
     def __str__(self):
         return f"Loan #{self.id} - {self.borrower.email} ({self.amount})"
 

@@ -54,8 +54,7 @@ def loan_officer_dashboard(request):
     # Apply search filter across borrower and loan fields
     if search_query:
         loans_queryset = loans_queryset.filter(
-            Q(borrower__first_name__icontains=search_query) |
-            Q(borrower__last_name__icontains=search_query) |
+            Q(borrower__full_name__icontains=search_query) |
             Q(borrower__email__icontains=search_query) |
             Q(id__icontains=search_query)
         )
@@ -311,29 +310,34 @@ def loan_officer_borrower_documents_view(request, loan_id):
 @login_required
 @user_passes_test(is_loan_officer, login_url='account:login')
 def loan_officer_documents_list(request):
-    """Lists all loans managed by the logged-in officer, with search functionality,
-
-    so they can drill into any one of them to view its supporting documents.
-    """
+    """Lists all supporting documents for loans managed by the logged-in officer."""
+    from apps.loan.models import SupportingDocuments
     search_query = request.GET.get('q', '').strip()
 
-    loans = Loan.objects.select_related('borrower').filter(
-        loan_officer=request.user
+    documents = SupportingDocuments.objects.select_related(
+        'loan_application', 'loan_application__borrower'
+    ).filter(
+        loan_application__loan_officer=request.user
     )
 
-
     if search_query:
-        loans = loans.filter(
-            Q(borrower__email__icontains=search_query)
-            | Q(purpose__icontains=search_query)
-            | Q(employer_name__icontains=search_query)
+        documents = documents.filter(
+            Q(loan_application__borrower__email__icontains=search_query)
+            | Q(loan_application__borrower__full_name__icontains=search_query)
+            | Q(document_type__icontains=search_query)
         )
 
-    loans = loans.order_by('-created_at')
+    documents = documents.order_by('-created_at')
+
+    pending_count = documents.filter(verification_status=False).count()
+    verified_count = documents.filter(verification_status=True).count()
 
     context = {
         'title': 'Documents',
-        'loans': loans,
+        'documents': documents,
+        'pending_count': pending_count,
+        'verified_count': verified_count,
+        'rejected_count': 0,
         'search_query': search_query,
     }
     return render(
@@ -465,6 +469,7 @@ def loan_officer_notes_view(request, loan_id):
     loan = get_object_or_404(
         Loan.objects.select_related("borrower", "loan_officer"),
         id=loan_id,
+        loan_officer=request.user,
     )
 
     note_id = request.GET.get("edit_note_id")
@@ -504,36 +509,5 @@ def loan_officer_notes_view(request, loan_id):
         "notes": notes,
         "form": form,
         "editing_note": note_instance,
-    }
-    return render(request, "loan_officer_app/loan_officer_notes.html", context)
-
-
-@login_required
-@user_passes_test(is_loan_officer, login_url="account:login")
-def loan_officer_notes_view(request, loan_id):
-    """View to manage and add internal notes for a specific loan application."""
-    loan = get_object_or_404(
-        Loan.objects.select_related("borrower", "loan_officer"),
-        id=loan_id,
-        loan_officer=request.user,
-    )
-
-    if request.method == "POST":
-        note_content = request.POST.get("content")
-        if note_content:
-            LoanNote.objects.create(
-                loan=loan, author=request.user, content=note_content
-            )
-            return redirect(
-                "loan_officer_app:loan_officer_notes", loan_id=loan.id
-            )
-
-    notes = loan.notes.all().order_by("-created_at")
-
-    context = {
-        "title": f"Notes for Loan #{loan.id}",
-        "loan": loan,
-        "borrower": loan.borrower,
-        "notes": notes,
     }
     return render(request, "loan_officer_app/loan_officer_notes.html", context)

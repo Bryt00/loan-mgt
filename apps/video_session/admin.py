@@ -23,11 +23,9 @@ class VideoSessionAdmin(admin.ModelAdmin):
     search_fields = (
         "zoom_meeting_id",
         "borrower__email",
-        "borrower__first_name",
-        "borrower__last_name",
+        "borrower__full_name",
         "loan_officer__email",
-        "loan_officer__first_name",
-        "loan_officer__last_name",
+        "loan_officer__full_name",
         "comments",
     )
     autocomplete_fields = ("loan", "borrower", "loan_officer")

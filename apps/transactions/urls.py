@@ -17,7 +17,7 @@ urlpatterns = [
     # Borrower URLs
     path("pay/loan/<uuid:loan_id>/", borrower_pay_loan_view, name="borrower_pay_loan"),
     path("my/history/", borrower_transactions_list_view, name="borrower_transactions"),
-    path("repay/<int:loan_id>/", initiate_loan_repayment_view, name="initiate_repayment"),
+    path("repay/<uuid:loan_id>/", initiate_loan_repayment_view, name="initiate_repayment"),
     path("repay/verify/<str:reference>/", verify_loan_repayment_view, name="verify_repayment"),
 
     # Loan Officer URLs

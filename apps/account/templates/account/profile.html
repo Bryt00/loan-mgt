@@ -24,8 +24,8 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Username</span>
-                <p class="text-sm font-medium text-slate-900">{{ request.user.username }}</p>
+                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Full Name</span>
+                <p class="text-sm font-medium text-slate-900">{{ request.user.full_name|default:"Not Provided" }}</p>
             </div>
 
             <div>
@@ -34,18 +34,18 @@
             </div>
 
             <div>
-                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">First Name</span>
-                <p class="text-sm font-medium text-slate-900">{{ request.user.first_name|default:"Not Provided" }}</p>
+                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Phone Number</span>
+                <p class="text-sm font-medium text-slate-900">{{ request.user.phone_number|default:"Not Provided" }}</p>
             </div>
 
             <div>
-                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Last Name</span>
-                <p class="text-sm font-medium text-slate-900">{{ request.user.last_name|default:"Not Provided" }}</p>
+                <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Role</span>
+                <p class="text-sm font-medium text-slate-900">{{ request.user.get_role_display|default:request.user.role }}</p>
             </div>
 
             <div>
                 <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Date Joined</span>
-                <p class="text-sm font-medium text-slate-900">{{ request.user.date_joined|date:"F j, Y, g:i a" }}</p>
+                <p class="text-sm font-medium text-slate-900">{{ request.user.created_at|date:"F j, Y, g:i a" }}</p>
             </div>
 
             <div>

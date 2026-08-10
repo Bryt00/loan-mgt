@@ -183,20 +183,18 @@ def update_loan_application(request, loan_id):
         form = LoanApplicationForm(instance=loan)
 
     context = {'form': form, 'loan': loan, 'title': 'Update Loan Application'}
-    return render(request, 'loan/apply.html', context)  # Reusing apply template
+    return render(request, 'loan/apply_loan.html', context)  # Reusing apply template
 
 
 @login_required
 def delete_loan_application(request, loan_id):
-
-    if request.user.role != "loan_officer":
-        messages.warning(request, "You are not authorized to view this loan.")
-        return redirect('loan:application_status', loan_id=loan_id)
-
     """
     Allows borrower to delete a SUBMITTED application.
     Handles cache invalidation.
     """
+    if request.user.role != request.user.Role.BORROWER:
+        messages.warning(request, "Only authorized borrowers can delete their applications.")
+        return redirect('account:dashboard')
     loan = get_object_or_404(Loan, id=loan_id, borrower=request.user)
 
 

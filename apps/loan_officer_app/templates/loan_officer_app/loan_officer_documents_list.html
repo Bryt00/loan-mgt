@@ -108,31 +108,29 @@
                         {% for doc in documents %}
                             <tr class="hover:bg-slate-50/50 transition">
                                 <td class="py-4 px-6">
-                                    <div class="font-bold text-slate-900">{{ borrower.full_name|default:borrower.email }}</div>
-                                    <div class="text-xs text-slate-500">Loan: <a href="{% url 'loan_officer_app:loan_officer_borrower_documents' loan.id %}" class="text-emerald-700 hover:underline">#{{ loan.id|truncatechars:8 }}</a></div>
+                                    <div class="font-bold text-slate-900">{{ doc.loan_application.borrower.full_name|default:doc.loan_application.borrower.email }}</div>
+                                    <div class="text-xs text-slate-500">Loan: <a href="{% url 'loan_officer_app:loan_officer_borrower_documents' doc.loan_application.id %}" class="text-emerald-700 hover:underline">#{{ doc.loan_application.id|truncatechars:8 }}</a></div>
                                 </td>
                                 <td class="py-4 px-6 font-medium text-slate-700">
                                     {{ doc.get_document_type_display|default:doc.document_type }}
                                 </td>
                                 <td class="py-4 px-6 text-slate-500 text-xs">
-                                    {{ doc.uploaded_at|date:"M d, Y - H:i" }}
+                                    {{ doc.created_at|date:"M d, Y - H:i" }}
                                 </td>
                                 <td class="py-4 px-6">
-                                    {% if doc.status == 'verified' or doc.is_verified %}
+                                    {% if doc.verification_status %}
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">Verified</span>
-                                    {% elif doc.status == 'rejected' %}
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">Rejected</span>
                                     {% else %}
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">Pending</span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">Pending Verification</span>
                                     {% endif %}
                                 </td>
                                 <td class="py-4 px-6 text-right space-x-2">
-                                    {% if doc.file %}
-                                        <a href="{{ doc.file.url }}" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
+                                    {% if doc.document %}
+                                        <a href="{{ doc.document.url }}" target="_blank" class="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
                                             View
                                         </a>
                                     {% endif %}
-                                    <a href="{% url 'loan_officer_app:loan_officer_borrower_documents' loan.id %}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-800 hover:bg-emerald-900 transition shadow-sm">
+                                    <a href="{% url 'loan_officer_app:loan_officer_borrower_documents' doc.loan_application.id %}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-800 hover:bg-emerald-900 transition shadow-sm">
                                         Review
                                     </a>
                                 </td>

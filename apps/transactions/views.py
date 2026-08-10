@@ -45,6 +45,7 @@ def borrower_pay_loan_view(request, loan_id):
                 user=request.user,
                 loan=loan,
                 amount=amount,
+                email=request.user.email,
                 reference=reference,
                 payment_type=Payment.PaymentType.REPAYMENT,
                 status=Payment.PaymentStatus.PENDING,
@@ -87,7 +88,12 @@ def loan_officer_disburse_loan_view(request, loan_id):
     On POST: auto-creates a Paystack Transfer Recipient from the submitted account details,
              then immediately initiates the transfer — no manual recipient code needed.
     """
-    loan = get_object_or_404(Loan, id=loan_id, application_status=Loan.ApplicationStatus.APPROVED)
+    loan = get_object_or_404(
+        Loan,
+        id=loan_id,
+        loan_officer=request.user,
+        application_status=Loan.ApplicationStatus.APPROVED
+    )
 
     # Fetch live Ghana banks / MoMo providers from Paystack for the form dropdown
     bank_choices = None
@@ -141,6 +147,7 @@ def loan_officer_disburse_loan_view(request, loan_id):
                 user=loan.borrower,
                 loan=loan,
                 amount=amount,
+                email=loan.borrower.email,
                 reference=reference,
                 payment_type=Payment.PaymentType.DISBURSEMENT,
                 status=Payment.PaymentStatus.PENDING,
@@ -195,13 +202,15 @@ def approved_loans_disbursement_list_view(request):
     View for a loan officer to browse all APPROVED loans ready for Paystack disbursement.
     Renders using the loan_officer_app/loan_officer_base.html layout.
     """
-    approved_loans = Loan.objects.filter(application_status=Loan.ApplicationStatus.APPROVED).select_related('borrower').order_by('-submission_date')
+    approved_loans = Loan.objects.filter(
+        loan_officer=request.user,
+        application_status=Loan.ApplicationStatus.APPROVED
+    ).select_related('borrower').order_by('-submission_date')
 
     search_query = request.GET.get('q', '').strip()
     if search_query:
         approved_loans = approved_loans.filter(
-            Q(borrower__first_name__icontains=search_query) |
-            Q(borrower__last_name__icontains=search_query) |
+            Q(borrower__full_name__icontains=search_query) |
             Q(borrower__email__icontains=search_query) |
             Q(id__icontains=search_query)
         )
@@ -229,7 +238,7 @@ def payment_verification_callback_view(request):
     reference = request.GET.get("reference")
     if not reference:
         messages.error(request, "No transaction reference provided.")
-        return redirect("core:dashboard")
+        return redirect("account:home")
 
     verification = PaystackService.verify_transaction(reference)
     if verification["success"] and verification["status"] == "success":
@@ -238,8 +247,8 @@ def payment_verification_callback_view(request):
         messages.warning(request, "Transaction verification is pending or failed. We will update you shortly.")
 
     if is_loan_officer(request.user):
-        return redirect("loan_officer_app:dashboard")
-    return redirect("borrower_app:dashboard")
+        return redirect("loan_officer_app:loan_officer_dashboard")
+    return redirect("borrower_app:borrower_dashboard")
 
 
 @csrf_exempt
@@ -376,6 +385,7 @@ def initiate_loan_repayment_view(request, loan_id):
                         user=request.user,
                         loan=loan,
                         amount=amount,
+                        email=request.user.email,
                         reference=reference,
                         payment_type=Payment.PaymentType.REPAYMENT,
                         status=Payment.PaymentStatus.PENDING,
@@ -417,7 +427,7 @@ def verify_loan_repayment_view(request, reference):
     # Avoid processing already finalized transactions
     if payment.status == Payment.PaymentStatus.SUCCESS:
         messages.info(request, "This payment has already been verified and processed.")
-        return redirect("borrower_dashboard")
+        return redirect("borrower_app:borrower_dashboard")
 
     # Verify transaction with Paystack API
     verification = PaystackService.verify_transaction(reference)
@@ -426,16 +436,7 @@ def verify_loan_repayment_view(request, reference):
         payment.status = Payment.PaymentStatus.SUCCESS
         payment.save()
 
-        # Update loan outstanding balance
         loan = payment.loan
-        loan.outstanding_balance -= payment.amount
-
-        # Mark loan as fully settled if balance hits 0
-        if loan.outstanding_balance <= Decimal("0.00"):
-            loan.outstanding_balance = Decimal("0.00")
-            loan.application_status = Loan.ApplicationStatus.APPROVED  # adjust status name as needed
-
-        loan.save()
 
         messages.success(
             request,

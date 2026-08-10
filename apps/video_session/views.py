@@ -134,7 +134,7 @@ def video_session_update(request, pk):
 
     if not is_officer:
         messages.error(request, "You do not have permission to update video sessions.")
-        return redirect("loan_officer_app:video_session_list")
+        return redirect("video_session:video_session_list")
 
     session = get_object_or_404(VideoSession, pk=pk)
 
@@ -143,7 +143,7 @@ def video_session_update(request, pk):
             request,
             "You do not have permission to edit this video session.",
         )
-        return redirect("loan_officer_app:video_session_list")
+        return redirect("video_session:video_session_list")
 
     if request.method == "POST":
         form = VideoSessionForm(request.POST, instance=session, user=request.user)
@@ -162,7 +162,7 @@ def video_session_update(request, pk):
 
             messages.success(request, "Video session details updated successfully!")
 
-            return redirect("loan_officer_app:video_session_list")
+            return redirect("video_session:video_session_list")
 
     else:
         form = VideoSessionForm(instance=session, user=request.user)
@@ -182,7 +182,7 @@ def video_session_delete(request, pk):
 
     if not is_officer:
         messages.error(request, "You do not have permission to delete video sessions.")
-        return redirect("loan_officer_app:video_session_list")
+        return redirect("video_session:video_session_list")
 
     session = get_object_or_404(VideoSession, pk=pk)
 
@@ -191,7 +191,7 @@ def video_session_delete(request, pk):
             request,
             "You do not have permission to delete this video session.",
         )
-        return redirect("loan_officer_app:video_session_list")
+        return redirect("video_session:video_session_list")
 
     if request.method == "POST":
         borrower_id = session.borrower.id if session.borrower else None
