@@ -118,6 +118,12 @@ def borrower_dashboard(request):
         "risk_tier": metrics["risk_tier"],
         "next_payment_amount": metrics["next_payment_amount"],
         "next_payment_date": metrics["next_payment_date"],
+        "active_loan": borrower_loans.filter(
+            application_status__in=[
+                Loan.ApplicationStatus.APPROVED,
+                Loan.ApplicationStatus.DISBURSED,
+            ]
+        ).first(),
         "title": "Borrower Dashboard",
     }
 

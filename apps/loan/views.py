@@ -24,7 +24,7 @@ def apply_for_loan(request):
     """
     if request.user.role != request.user.Role.BORROWER:
         messages.warning(request, "Only authorized borrowers can submit applications.")
-        return redirect('account:dashboard')
+        return redirect('account:home')
 
     cache_key = f'borrower_active_loans_{request.user.id}'
     has_active_loan_cache = cache.get(cache_key)

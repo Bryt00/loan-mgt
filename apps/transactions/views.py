@@ -162,12 +162,25 @@ def loan_officer_disburse_loan_view(request, loan_id):
             )
 
             if transfer_result["success"]:
+                payment.status = Payment.PaymentStatus.SUCCESS
+                payment.save()
+
+                Transaction.objects.create(
+                    user=loan.borrower,
+                    wallet=getattr(loan.borrower, "wallet", None),
+                    reference=reference,
+                    amount=amount,
+                    transaction_type=Transaction.TransactionType.DEBIT,
+                    status=Transaction.TransactionStatus.SUCCESS,
+                    description=f"Loan Disbursement for Loan #{loan.id}"
+                )
+
                 loan.application_status = Loan.ApplicationStatus.DISBURSED
                 loan.save()
                 messages.success(
                     request,
                     f"✅ Disbursement of GH¢{amount:,.2f} initiated successfully to {account_name} "
-                    f"({account_number}). Transfer status: {transfer_result.get('status', 'pending').upper()}."
+                    f"({account_number}). Transfer status: {transfer_result.get('status', 'success').upper()}."
                 )
                 return redirect("loan_officer_app:loan_officer_dashboard")
             else:
@@ -274,20 +287,21 @@ def paystack_webhook_view(request):
 @user_passes_test(is_loan_officer, login_url='account:login')
 def loan_officer_transactions_list_view(request):
     """
-    View for a loan officer to view all platform transactions with search and pagination.
+    View for a loan officer to view all platform payments & disbursements with search and pagination.
     Renders using the loan_officer_app/loan_officer_base.html layout.
     """
-    transactions = Transaction.objects.select_related('user', 'wallet').order_by('-created_at')
+    payments = Payment.objects.select_related('user', 'loan').order_by('-created_at')
 
     search_query = request.GET.get('q', '').strip()
     if search_query:
-        transactions = transactions.filter(
+        payments = payments.filter(
             Q(reference__icontains=search_query) |
             Q(user__email__icontains=search_query) |
-            Q(description__icontains=search_query)
+            Q(user__full_name__icontains=search_query) |
+            Q(payment_type__icontains=search_query)
         )
 
-    paginator = Paginator(transactions, 15)
+    paginator = Paginator(payments, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -307,16 +321,16 @@ def borrower_transactions_list_view(request):
     View for a borrower to view only their own transaction history.
     Renders using the borrower_app/borrower_base.html layout.
     """
-    transactions = Transaction.objects.filter(user=request.user).select_related('wallet').order_by('-created_at')
+    payments = Payment.objects.filter(user=request.user).select_related('loan').order_by('-created_at')
 
     search_query = request.GET.get('q', '').strip()
     if search_query:
-        transactions = transactions.filter(
+        payments = payments.filter(
             Q(reference__icontains=search_query) |
-            Q(description__icontains=search_query)
+            Q(payment_type__icontains=search_query)
         )
 
-    paginator = Paginator(transactions, 10)
+    paginator = Paginator(payments, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

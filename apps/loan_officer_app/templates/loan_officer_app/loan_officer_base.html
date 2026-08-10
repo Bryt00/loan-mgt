@@ -217,10 +217,45 @@
             <!-- Dynamic Main Content Area -->
             <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">
                 {% if messages %}
-                    <div class="mb-6 space-y-2">
+                    <div class="mb-6 space-y-3">
                         {% for message in messages %}
-                            <div class="p-4 rounded-xl text-sm font-medium {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-100{% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-100{% else %}bg-slate-100 text-slate-800{% endif %}">
-                                {{ message }}
+                            <div class="p-4 rounded-2xl text-sm font-semibold flex items-center justify-between shadow-sm transition-all
+                                {% if 'success' in message.tags %}
+                                    bg-emerald-50 text-emerald-900 border border-emerald-200/80 shadow-emerald-900/5
+                                {% elif 'error' in message.tags or 'danger' in message.tags %}
+                                    bg-rose-50 text-rose-900 border border-rose-200/80 shadow-rose-900/5
+                                {% elif 'warning' in message.tags %}
+                                    bg-amber-50 text-amber-900 border border-amber-200/80 shadow-amber-900/5
+                                {% elif 'info' in message.tags %}
+                                    bg-sky-50 text-sky-900 border border-sky-200/80 shadow-sky-900/5
+                                {% else %}
+                                    bg-emerald-50 text-emerald-900 border border-emerald-200/80 shadow-emerald-900/5
+                                {% endif %}">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0
+                                        {% if 'success' in message.tags %}
+                                            bg-emerald-500 text-white shadow-sm shadow-emerald-500/30
+                                        {% elif 'error' in message.tags or 'danger' in message.tags %}
+                                            bg-rose-500 text-white shadow-sm shadow-rose-500/30
+                                        {% elif 'warning' in message.tags %}
+                                            bg-amber-500 text-white shadow-sm shadow-amber-500/30
+                                        {% elif 'info' in message.tags %}
+                                            bg-sky-500 text-white shadow-sm shadow-sky-500/30
+                                        {% else %}
+                                            bg-emerald-500 text-white shadow-sm shadow-emerald-500/30
+                                        {% endif %}">
+                                        {% if 'success' in message.tags %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        {% elif 'error' in message.tags or 'danger' in message.tags %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        {% elif 'warning' in message.tags %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        {% else %}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {% endif %}
+                                    </div>
+                                    <span class="leading-snug">{{ message }}</span>
+                                </div>
                             </div>
                         {% endfor %}
                     </div>

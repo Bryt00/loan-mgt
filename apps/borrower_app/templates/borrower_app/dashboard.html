@@ -137,15 +137,27 @@
                         <p class="text-xs text-slate-500">Get funds instantly</p>
                     </div>
                 </a>
-                <div class="flex items-center space-x-4 p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition group cursor-pointer">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                {% if active_loan %}
+                <a href="{% url 'transactions:borrower_pay_loan' active_loan.id %}" class="flex items-center space-x-4 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold group-hover:scale-105 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-slate-900">Make a Repayment</p>
                         <p class="text-xs text-slate-500">Pay securely online</p>
                     </div>
-                </div>
+                </a>
+                {% else %}
+                <a href="{% url 'borrower_app:borrower_loans_list' %}" class="flex items-center space-x-4 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold group-hover:scale-105 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900">Make a Repayment</p>
+                        <p class="text-xs text-slate-500">Pay securely online</p>
+                    </div>
+                </a>
+                {% endif %}
             </div>
         </div>
 

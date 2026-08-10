@@ -314,11 +314,16 @@ def loan_officer_documents_list(request):
     from apps.loan.models import SupportingDocuments
     search_query = request.GET.get('q', '').strip()
 
-    documents = SupportingDocuments.objects.select_related(
-        'loan_application', 'loan_application__borrower'
-    ).filter(
-        loan_application__loan_officer=request.user
-    )
+    if getattr(request.user, 'role', '') == 'ADMIN' or request.user.is_staff or request.user.is_superuser:
+        documents = SupportingDocuments.objects.select_related(
+            'loan_application', 'loan_application__borrower'
+        ).all()
+    else:
+        documents = SupportingDocuments.objects.select_related(
+            'loan_application', 'loan_application__borrower'
+        ).filter(
+            Q(loan_application__loan_officer=request.user) | Q(loan_application__loan_officer__isnull=True)
+        )
 
     if search_query:
         documents = documents.filter(

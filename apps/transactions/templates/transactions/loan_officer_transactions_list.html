@@ -59,11 +59,11 @@
                                 {{ tx.reference }}
                             </td>
                             <td class="px-6 py-4 text-slate-600">
-                                {{ tx.user.email }}
+                                {{ tx.user.full_name|default:tx.user.email }}
                             </td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if tx.transaction_type == 'CREDIT' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
-                                    {{ tx.get_transaction_type_display }}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if tx.payment_type == 'DISBURSEMENT' or tx.transaction_type == 'DEBIT' %}bg-rose-100 text-rose-800{% else %}bg-emerald-100 text-emerald-800{% endif %}">
+                                    {{ tx.get_payment_type_display|default:tx.get_transaction_type_display }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right font-bold text-slate-900 whitespace-nowrap">
@@ -85,7 +85,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4 text-xs text-slate-500 max-w-xs truncate" title="{{ tx.description }}">
-                                {{ tx.description|default:"--" }}
+                                {% if tx.loan %}Loan #{{ tx.loan.id|truncatechars:8 }}{% else %}{{ tx.description|default:"--" }}{% endif %}
                             </td>
                             <td class="px-6 py-4 text-xs text-slate-500 whitespace-nowrap">
                                 {{ tx.created_at|date:"M d, Y H:i" }}
