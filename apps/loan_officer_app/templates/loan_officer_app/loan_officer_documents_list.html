@@ -16,7 +16,7 @@
                 <span class="text-xs font-semibold text-slate-500">Details</span>
             </div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900 mt-1">Borrower Documents</h1>
-            <p class="text-sm text-slate-500">Review, verify, and manage uploaded KYC and financial verification documents for Loan <span class="font-mono text-slate-700">#{{ loan.id|default:"N/A" }}</span>.</p>
+            <p class="text-sm text-slate-500">Review, verify, and manage uploaded KYC and financial verification documents across loan applications.</p>
         </div>
         <div class="flex items-center space-x-3">
             <button onclick="window.print()" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 transition shadow-sm">
@@ -73,12 +73,12 @@
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
         <!-- Table Search & Filter Bar -->
-        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <form method="GET" class="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="relative w-full sm:w-80">
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </span>
-                <input type="text" id="document-search" placeholder="Search document type..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:border-emerald-700 transition">
+                <input type="text" name="q" value="{{ search_query }}" id="document-search" placeholder="Search borrower, document type..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 bg-slate-50/50 focus:bg-white focus:outline-none focus:border-emerald-700 transition">
             </div>
 
             <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
@@ -86,10 +86,14 @@
                     <option value="">All Statuses</option>
                     <option value="pending">Pending</option>
                     <option value="verified">Verified</option>
-                    <option value="rejected">Rejected</option>
                 </select>
+                {% if search_query %}
+                    <a href="{% url 'loan_officer_app:loan_officer_documents_list' %}" class="px-3 py-2 bg-slate-100 text-slate-600 text-xs sm:text-sm font-medium rounded-xl hover:bg-slate-200 transition">
+                        Clear
+                    </a>
+                {% endif %}
             </div>
-        </div>
+        </form>
 
         <!-- Documents Table -->
         <div class="overflow-x-auto">
@@ -103,10 +107,12 @@
                         <th class="py-3.5 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
+                <tbody class="divide-y divide-slate-100 text-sm" id="documents-tbody">
                     {% if documents %}
                         {% for doc in documents %}
-                            <tr class="hover:bg-slate-50/50 transition">
+                            <tr class="doc-row hover:bg-slate-50/50 transition"
+                                data-search="{{ doc.loan_application.borrower.full_name|lower }} {{ doc.loan_application.borrower.email|lower }} {{ doc.get_document_type_display|lower }} {{ doc.document_type|lower }}"
+                                data-status="{% if doc.verification_status %}verified{% else %}pending{% endif %}">
                                 <td class="py-4 px-6">
                                     <div class="font-bold text-slate-900">{{ doc.loan_application.borrower.full_name|default:doc.loan_application.borrower.email }}</div>
                                     <div class="text-xs text-slate-500">Loan: <a href="{% url 'loan_officer_app:loan_officer_borrower_documents' doc.loan_application.id %}" class="text-emerald-700 hover:underline">#{{ doc.loan_application.id|truncatechars:8 }}</a></div>
@@ -141,8 +147,8 @@
                             <td colspan="5" class="py-12 text-center text-slate-400">
                                 <div class="flex flex-col items-center justify-center space-y-2">
                                     <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    <p class="text-sm font-medium text-slate-600">No documents found for this loan.</p>
-                                    <p class="text-xs text-slate-400">Borrower uploads associated with this record will appear here.</p>
+                                    <p class="text-sm font-medium text-slate-600">No borrower documents found.</p>
+                                    <p class="text-xs text-slate-400">Borrower uploads associated with loan records will appear here.</p>
                                 </div>
                             </td>
                         </tr>
@@ -151,7 +157,7 @@
             </table>
         </div>
 
-        <!-- Pagination footer if needed -->
+        <!-- Pagination footer -->
         <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>Showing records securely</span>
             <div class="flex items-center space-x-1">
@@ -162,4 +168,33 @@
 
     </div>
 </div>
+
+<script>
+    // Live Search & Filter Script
+    const searchInput = document.getElementById('document-search');
+    const statusSelect = document.getElementById('status-filter');
+    const rows = document.querySelectorAll('.doc-row');
+
+    function filterTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        const selectedStatus = statusSelect.value.toLowerCase();
+
+        rows.forEach(row => {
+            const rowSearch = row.getAttribute('data-search') || '';
+            const rowStatus = row.getAttribute('data-status') || '';
+
+            const matchesSearch = !query || rowSearch.includes(query);
+            const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', filterTable);
+    if (statusSelect) statusSelect.addEventListener('change', filterTable);
+</script>
 {% endblock %}
