@@ -123,25 +123,47 @@
                     {% endif %}
                 </div>
 
-                <!-- Document Type -->
+                <!-- Ghana Card -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.document_type.id_for_label }}">
-                        {{ form.document_type.label }}
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.ghana_card.id_for_label }}">
+                        {{ form.ghana_card.label }}
                     </label>
-                    {{ form.document_type }}
-                    {% if form.document_type.errors %}
-                        <p class="text-xs text-red-600 mt-1">{{ form.document_type.errors.0 }}</p>
+                    {{ form.ghana_card }}
+                    {% if form.ghana_card.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.ghana_card.errors.0 }}</p>
                     {% endif %}
                 </div>
 
-                <!-- Document File -->
+                <!-- National ID -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.document.id_for_label }}">
-                        {{ form.document.label }}
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.national_id.id_for_label }}">
+                        {{ form.national_id.label }}
                     </label>
-                    {{ form.document }}
-                    {% if form.document.errors %}
-                        <p class="text-xs text-red-600 mt-1">{{ form.document.errors.0 }}</p>
+                    {{ form.national_id }}
+                    {% if form.national_id.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.national_id.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Financial Statement -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.financial_statement.id_for_label }}">
+                        {{ form.financial_statement.label }}
+                    </label>
+                    {{ form.financial_statement }}
+                    {% if form.financial_statement.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.financial_statement.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Other Document -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2" for="{{ form.other_document.id_for_label }}">
+                        {{ form.other_document.label }}
+                    </label>
+                    {{ form.other_document }}
+                    {% if form.other_document.errors %}
+                        <p class="text-xs text-red-600 mt-1">{{ form.other_document.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>

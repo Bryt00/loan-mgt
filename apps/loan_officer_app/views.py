@@ -269,12 +269,30 @@ def loan_officer_borrower_documents_view(request, loan_id):
         loan_officer=request.user,
     )
 
+    if request.method == "POST":
+        document_id = request.POST.get("document_id")
+        action = request.POST.get("action")
+        notes = request.POST.get("verification_notes", "").strip()
+
+        if document_id and action:
+            from apps.loan.models import SupportingDocuments
+            doc = get_object_or_404(SupportingDocuments, id=document_id, loan_application=loan)
+            if action == "verify":
+                doc.verification_status = True
+            elif action == "unverify":
+                doc.verification_status = False
+            
+            if notes:
+                doc.verification_notes = notes
+            doc.save()
+            messages.success(request, f"Document '{doc.get_document_type_display()}' updated successfully.")
+            return redirect("loan_officer_app:loan_officer_borrower_documents", loan_id=loan.id)
+
     documents = loan.documents.all()
 
-
-    pending_count = documents.filter(status="pending").count()
-    verified_count = documents.filter(status="verified").count()
-    rejected_count = documents.filter(status="rejected").count()
+    pending_count = documents.filter(verification_status=False).count()
+    verified_count = documents.filter(verification_status=True).count()
+    rejected_count = 0
 
     context = {
         "title": f"Documents for Loan #{loan.id}",

@@ -82,11 +82,22 @@
                         <td class="py-4 px-6">
                             {{ doc.verification_notes|default:"No notes added yet." }}
                         </td>
-                        <td class="py-4 px-6 text-right space-x-2">
+                        <td class="py-4 px-6 text-right flex justify-end items-center space-x-2">
                             <a href="{{ doc.document.url }}" target="_blank"
                                class="inline-flex items-center px-3 py-1.5 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
                                 View File
                             </a>
+                            <form method="POST" class="inline-flex items-center space-x-2 m-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="document_id" value="{{ doc.id }}">
+                                <input type="text" name="verification_notes" placeholder="Notes (optional)" value="{{ doc.verification_notes|default:'' }}" class="text-xs px-2 py-1.5 border border-slate-200 rounded-lg w-32 focus:outline-none focus:border-emerald-500">
+                                
+                                {% if doc.verification_status %}
+                                    <button type="submit" name="action" value="unverify" class="inline-flex items-center px-3 py-1.5 border border-amber-300 text-xs font-medium rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 transition shadow-sm">Unverify</button>
+                                {% else %}
+                                    <button type="submit" name="action" value="verify" class="inline-flex items-center px-3 py-1.5 border border-emerald-300 text-xs font-medium rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition shadow-sm">Verify</button>
+                                {% endif %}
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}

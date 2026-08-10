@@ -13,20 +13,32 @@ class LoanApplicationForm(forms.ModelForm):
             'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition'
         })
     )
-    document = forms.FileField(
+    ghana_card = forms.FileField(
         required=False,
-        label="Supporting Documents (Ghana Card, Financial Statements, etc.)",
-        widget=MultipleFileInput(attrs={
-            'multiple': True,
+        label="Ghana Card",
+        widget=forms.ClearableFileInput(attrs={
             'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition'
         })
     )
-    document_type = forms.ChoiceField(
-        choices=SupportingDocuments.DocumentType.choices,
+    national_id = forms.FileField(
         required=False,
-        label="Document Type",
-        widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition'
+        label="National ID (Other)",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition'
+        })
+    )
+    financial_statement = forms.FileField(
+        required=False,
+        label="Financial Statement",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition'
+        })
+    )
+    other_document = forms.FileField(
+        required=False,
+        label="Other Document",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition'
         })
     )
 
@@ -81,8 +93,8 @@ class LoanApplicationForm(forms.ModelForm):
         if commit:
             loan.save()
             
-            # Note: We won't save documents here anymore, we will process request.FILES.getlist('document') 
-            # in the view to handle multiple files.
+            # Note: We won't save documents here anymore, we will process specific 
+            # file fields in the view to handle multiple file types.
             
         return loan
 

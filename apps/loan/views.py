@@ -53,15 +53,30 @@ def apply_for_loan(request):
         if form.is_valid():
             loan_application = form.save(commit=True, borrower=request.user)
 
-            # Process multiple documents
-            files = request.FILES.getlist('document')
-            doc_type = form.cleaned_data.get('document_type')
-            
-            for f in files:
+            # Process multiple documents explicitly
+            if request.FILES.get('ghana_card'):
                 SupportingDocuments.objects.create(
                     loan_application=loan_application,
-                    document_type=doc_type or SupportingDocuments.DocumentType.OTHER,
-                    document=f
+                    document_type=SupportingDocuments.DocumentType.GHANA_CARD,
+                    document=request.FILES.get('ghana_card')
+                )
+            if request.FILES.get('national_id'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan_application,
+                    document_type=SupportingDocuments.DocumentType.NATIONAL_ID,
+                    document=request.FILES.get('national_id')
+                )
+            if request.FILES.get('financial_statement'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan_application,
+                    document_type=SupportingDocuments.DocumentType.FINANCIAL_STATEMENT,
+                    document=request.FILES.get('financial_statement')
+                )
+            if request.FILES.get('other_document'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan_application,
+                    document_type=SupportingDocuments.DocumentType.OTHER,
+                    document=request.FILES.get('other_document')
                 )
 
             # 2. Trigger Auto-Assignment & Background Email Task
@@ -132,15 +147,30 @@ def update_loan_application(request, loan_id):
         if form.is_valid():
             form.save(commit=True, borrower=request.user)
 
-            # Process multiple documents (appends to existing)
-            files = request.FILES.getlist('document')
-            doc_type = form.cleaned_data.get('document_type')
-            
-            for f in files:
+            # Process multiple documents (appends to existing) explicitly
+            if request.FILES.get('ghana_card'):
                 SupportingDocuments.objects.create(
                     loan_application=loan,
-                    document_type=doc_type or SupportingDocuments.DocumentType.OTHER,
-                    document=f
+                    document_type=SupportingDocuments.DocumentType.GHANA_CARD,
+                    document=request.FILES.get('ghana_card')
+                )
+            if request.FILES.get('national_id'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan,
+                    document_type=SupportingDocuments.DocumentType.NATIONAL_ID,
+                    document=request.FILES.get('national_id')
+                )
+            if request.FILES.get('financial_statement'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan,
+                    document_type=SupportingDocuments.DocumentType.FINANCIAL_STATEMENT,
+                    document=request.FILES.get('financial_statement')
+                )
+            if request.FILES.get('other_document'):
+                SupportingDocuments.objects.create(
+                    loan_application=loan,
+                    document_type=SupportingDocuments.DocumentType.OTHER,
+                    document=request.FILES.get('other_document')
                 )
 
             # --- CACHE INVALIDATION ---

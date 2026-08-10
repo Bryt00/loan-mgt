@@ -70,6 +70,18 @@ class VideoSessionForm(forms.ModelForm):
                 "loan_officer"
             ].queryset.filter(pk=self.user.pk)
 
+            # Filter loans and borrowers to only those relevant to the loan officer
+            if getattr(self.user, "role", None) == "loan_officer" or getattr(self.user, "is_officer", False):
+                self.fields["loan"].queryset = self.fields["loan"].queryset.filter(
+                    loan_officer=self.user
+                ).order_by("-submission_date")
+                
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                self.fields["borrower"].queryset = User.objects.filter(
+                    borrowed_loans__loan_officer=self.user
+                ).distinct()
+
             # Pre-select the logged-in user for new sessions
             if not self.instance.pk:
                 self.fields["loan_officer"].initial = self.user
