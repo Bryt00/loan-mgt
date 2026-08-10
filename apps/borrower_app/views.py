@@ -181,9 +181,12 @@ def borrower_documents_list(request):
         loan_application__borrower=request.user
     ).order_by("-created_at")
 
+    loans = Loan.objects.filter(borrower=request.user).order_by("-created_at")
+
     context = {
         "title": "My Documents",
         "documents": documents,
+        "loans": loans,
     }
 
     return render(
@@ -191,6 +194,43 @@ def borrower_documents_list(request):
         "borrower_app/borrower_documents_list.html",
         context,
     )
+
+
+@login_required
+def borrower_upload_document(request):
+    if request.user.role != request.user.Role.BORROWER:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect("account:home")
+
+    if request.method == "POST":
+        loan_id = request.POST.get("loan_id")
+        doc_type = request.POST.get("document_type")
+        file_obj = request.FILES.get("document")
+
+        if not loan_id:
+            messages.error(request, "Please select a loan application.")
+            return redirect("borrower_app:borrower_documents_list")
+
+        loan = get_object_or_404(Loan, id=loan_id, borrower=request.user)
+
+        if not file_obj:
+            messages.error(request, "Please select a document file to upload.")
+            return redirect("borrower_app:borrower_documents_list")
+
+        doc = SupportingDocuments.objects.create(
+            loan_application=loan,
+            document_type=doc_type or SupportingDocuments.DocumentType.OTHER,
+            document=file_obj,
+            verification_status=False
+        )
+
+        messages.success(
+            request,
+            f"✅ Document '{doc.get_document_type_display()}' uploaded successfully for Loan #{str(loan.id)[:8]}!"
+        )
+        return redirect("borrower_app:borrower_documents_list")
+
+    return redirect("borrower_app:borrower_documents_list")
 
 
 @login_required

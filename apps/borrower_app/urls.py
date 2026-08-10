@@ -26,6 +26,11 @@ urlpatterns = [
         name="borrower_documents_list",
     ),
     path(
+        "documents/upload/",
+        views.borrower_upload_document,
+        name="borrower_upload_document",
+    ),
+    path(
         "document/<uuid:document_id>/",
         views.borrower_document_detail,
         name="borrower_document_detail",
